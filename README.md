@@ -21,27 +21,97 @@ Cada registro representa a un cliente, con **86 variables** descritas a continua
 
 ### 🏠 Variables principales
 
-| Nº | Nombre | Descripción | Dominio / Rango |
-|----|----------|--------------|------------------|
-| 1 | MOSTYPE | Subtipo de cliente | Ver niveles L0 |
+## 📘 Diccionario de Datos (COIL 2000)
+
+| Nº | Nombre | Descripción | Dominio |
+|----|---------|--------------|----------|
+| 1 | MOSTYPE | Subtipo de cliente | Ver L0 |
 | 2 | MAANTHUI | Número de viviendas | 1 – 10 |
 | 3 | MGEMOMV | Tamaño promedio del hogar | 1 – 6 |
-| 4 | MGEMLEEF | Edad promedio | Ver niveles L1 |
-| 5 | MOSHOOFD | Tipo principal de cliente | Ver niveles L2 |
-| 6–9 | MGODRK – MGODGE | Religión (católica, protestante, otra o sin religión) | Ver niveles L3 |
-| 10–15 | MRELGE – MFWEKIND | Estado civil y tipo de hogar | Binarias / proporciones |
-| 16–18 | MOPLHOOG – MOPLLAAG | Nivel educativo (alto, medio, bajo) | Proporciones |
-| 19–24 | MBERHOOG – MBERARBO | Ocupación o categoría laboral | Proporciones |
-| 25–29 | MSKA – MSKD | Clase social (A–D) | Proporciones |
-| 30–31 | MHHUUR / MHKOOP | Vivienda rentada / propia | 0–1 |
-| 32–34 | MAUT1 – MAUT0 | Número de autos | 0–2 |
-| 35–36 | MZFONDS / MZPART | Tipo de seguro médico | Binarias |
-| 37–41 | MINKM30 – MINK123M | Nivel de ingreso | Intervalos (<30k, 30–45k, 45–75k, 75–122k, >123k) |
-| 42 | MINKGEM | Ingreso promedio | Numérico |
-| 43 | MKOOPKLA | Clase de poder adquisitivo | Escala ordinal |
-| 44–64 | PWAPART – PBYSTAND | Contribución a tipos de seguros (auto, vida, incendio, etc.) | Ver niveles L4 |
-| 65–85 | AWAPART – ABYSTAND | Número de pólizas de cada tipo | 1 – 12 |
-| 86 | CARAVAN | Póliza de casa rodante (variable objetivo) | 0 = No, 1 = Sí |
+| 4 | MGEMLEEF | Edad promedio | Ver L1 |
+| 5 | MOSHOOFD | Tipo principal de cliente | Ver L2 |
+| 6 | MGODRK | Católico romano | Ver L3 |
+| 7 | MGODPR | Protestante | ... |
+| 8 | MGODOV | Otra religión | ... |
+| 9 | MGODGE | Sin religión | ... |
+| 10 | MRELGE | Casado | ... |
+| 11 | MRELSA | Vive en pareja | ... |
+| 12 | MRELOV | Otro tipo de relación | ... |
+| 13 | MFALLEEN | Solteros | ... |
+| 14 | MFGEKIND | Hogar sin hijos | ... |
+| 15 | MFWEKIND | Hogar con hijos | ... |
+| 16 | MOPLHOOG | Educación de nivel alto | ... |
+| 17 | MOPLMIDD | Educación de nivel medio | ... |
+| 18 | MOPLLAAG | Educación de nivel bajo | ... |
+| 19 | MBERHOOG | Estatus alto | ... |
+| 20 | MBERZELF | Emprendedor | ... |
+| 21 | MBERBOER | Agricultor | ... |
+| 22 | MBERMIDD | Gerencia media | ... |
+| 23 | MBERARBG | Trabajadores calificados | ... |
+| 24 | MBERARBO | Trabajadores no calificados | ... |
+| 25 | MSKA | Clase social A | ... |
+| 26 | MSKB1 | Clase social B1 | ... |
+| 27 | MSKB2 | Clase social B2 | ... |
+| 28 | MSKC | Clase social C | ... |
+| 29 | MSKD | Clase social D | ... |
+| 30 | MHHUUR | Vivienda rentada | ... |
+| 31 | MHKOOP | Vivienda propia | ... |
+| 32 | MAUT1 | 1 automóvil | ... |
+| 33 | MAUT2 | 2 automóviles | ... |
+| 34 | MAUT0 | Sin automóvil | ... |
+| 35 | MZFONDS | Servicio Nacional de Salud | ... |
+| 36 | MZPART | Seguro médico privado | ... |
+| 37 | MINKM30 | Ingreso < 30,000 | ... |
+| 38 | MINK3045 | Ingreso 30,000 – 45,000 | ... |
+| 39 | MINK4575 | Ingreso 45,000 – 75,000 | ... |
+| 40 | MINK7512 | Ingreso 75,000 – 122,000 | ... |
+| 41 | MINK123M | Ingreso > 123,000 | ... |
+| 42 | MINKGEM | Ingreso promedio | ... |
+| 43 | MKOOPKLA | Clase de poder adquisitivo | ... |
+| 44 | PWAPART | Contribución a seguros privados de terceros | Ver L4 |
+| 45 | PWABEDR | Contribución a seguros de terceros (empresas) | ... |
+| 46 | PWALAND | Contribución a seguros agrícolas | ... |
+| 47 | PPERSAUT | Contribución a seguros de automóvil | ... |
+| 48 | PBESAUT | Contribución a seguros de camionetas | ... |
+| 49 | PMOTSCO | Contribución a seguros de motocicletas/scooters | ... |
+| 50 | PVRAAUT | Contribución a seguros de camiones | ... |
+| 51 | PAANHANG | Contribución a seguros de remolque | ... |
+| 52 | PTRACTOR | Contribución a seguros de tractor | ... |
+| 53 | PWERKT | Contribución a seguros de maquinaria agrícola | ... |
+| 54 | PBROM | Contribución a seguros de ciclomotores | ... |
+| 55 | PLEVEN | Contribución a seguros de vida | ... |
+| 56 | PPERSONG | Contribución a seguros de accidentes personales | ... |
+| 57 | PGEZONG | Contribución a seguros familiares de accidentes | ... |
+| 58 | PWAOREG | Contribución a seguros por discapacidad | ... |
+| 59 | PBRAND | Contribución a seguros contra incendios | ... |
+| 60 | PZEILPL | Contribución a seguros de tabla de surf | ... |
+| 61 | PPLEZIER | Contribución a seguros de barco | ... |
+| 62 | PFIETS | Contribución a seguros de bicicleta | ... |
+| 63 | PINBOED | Contribución a seguros de propiedad | ... |
+| 64 | PBYSTAND | Contribución a seguros de seguridad social | ... |
+| 65 | AWAPART | Número de seguros privados de terceros | 1 – 12 |
+| 66 | AWABEDR | Número de seguros de terceros (empresas) | ... |
+| 67 | AWALAND | Número de seguros agrícolas | ... |
+| 68 | APERSAUT | Número de seguros de automóvil | ... |
+| 69 | ABESAUT | Número de seguros de camionetas | ... |
+| 70 | AMOTSCO | Número de seguros de motocicletas/scooters | ... |
+| 71 | AVRAAUT | Número de seguros de camiones | ... |
+| 72 | AAANHANG | Número de seguros de remolque | ... |
+| 73 | ATRACTOR | Número de seguros de tractor | ... |
+| 74 | AWERKT | Número de seguros de maquinaria agrícola | ... |
+| 75 | ABROM | Número de seguros de ciclomotores | ... |
+| 76 | ALEVEN | Número de seguros de vida | ... |
+| 77 | APERSONG | Número de seguros de accidentes personales | ... |
+| 78 | AGEZONG | Número de seguros familiares de accidentes | ... |
+| 79 | AWAOREG | Número de seguros por discapacidad | ... |
+| 80 | ABRAND | Número de seguros contra incendios | ... |
+| 81 | AZEILPL | Número de seguros de tabla de surf | ... |
+| 82 | APLEZIER | Número de seguros de barco | ... |
+| 83 | AFIETS | Número de seguros de bicicleta | ... |
+| 84 | AINBOED | Número de seguros de propiedad | ... |
+| 85 | ABYSTAND | Número de seguros de seguridad social | ... |
+| 86 | CARAVAN | Número de pólizas de casas rodantes | 0 – 1 |
+
 
 ---
 
