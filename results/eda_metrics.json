@@ -9,6 +9,7 @@
   ],
   "valores_nulos_antes_de_limpieza": 6369,
   "valores_nulos_despues_de_limpieza": 0,
-  "filas_duplicadas_eliminadas": 0,
-  "columnas_completamente_vacias": []
+  "filas_duplicadas_eliminadas": -24,
+  "columnas_completamente_vacias": [],
+  "total_outliers_reemplazados": 13460
 }

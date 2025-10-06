@@ -87,6 +87,36 @@ for c in df.columns:
 # --------------------------------
 df.drop_duplicates(inplace=True)
 
+# -------------------------------------
+# 6) Detección y corrección de outliers 
+# -------------------------------------
+# Para cada columna numérica:
+# - Calculamos el rango intercuartílico (IQR = Q3 - Q1)
+# - Consideramos outliers los valores fuera de [Q1 - 1.5*IQR, Q3 + 1.5*IQR]
+# - Los reemplazamos por la mediana de la columna
+
+total_outliers_reemplazados = 0
+
+for c in df.columns:
+    if df[c].isna().all():
+        continue  
+    Q1 = df[c].quantile(0.25)
+    Q3 = df[c].quantile(0.75)
+    IQR = Q3 - Q1
+    lower = Q1 - 1.5 * IQR
+    upper = Q3 + 1.5 * IQR
+    med = df[c].median()
+
+    # Detectar valores fuera de rango
+    mask_outliers = (df[c] < lower) | (df[c] > upper)
+    n_outliers = mask_outliers.sum()
+    total_outliers_reemplazados += int(n_outliers)
+
+    # Reemplazar outliers por la mediana
+    df.loc[mask_outliers, c] = med
+
+print(f"\n🧹 Outliers reemplazados por mediana: {total_outliers_reemplazados} en total.")
+
 # --------------------------------
 # 6) Métricas de limpieza (básicas)
 # --------------------------------
@@ -97,6 +127,7 @@ metrics = {
     "valores_nulos_despues_de_limpieza": int(df.isna().sum().sum()),
     "filas_duplicadas_eliminadas": int(dups_before - df.duplicated().sum()),
     "columnas_completamente_vacias": cols_all_nan,
+    "total_outliers_reemplazados": total_outliers_reemplazados
 }
 
 print("📊 Métricas de limpieza:", metrics)
