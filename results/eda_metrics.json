@@ -1,0 +1,14 @@
+{
+  "filas_y_columnas_original": [
+    5937,
+    87
+  ],
+  "filas_y_columnas_limpio": [
+    5929,
+    87
+  ],
+  "valores_nulos_antes_de_limpieza": 6369,
+  "valores_nulos_despues_de_limpieza": 0,
+  "filas_duplicadas_eliminadas": 0,
+  "columnas_completamente_vacias": []
+}
