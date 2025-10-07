@@ -319,17 +319,9 @@ if extra_idx in df.columns:
     extra_cleaning_stats[int(extra_idx)] = stats
     print(f"✅ Columna adicional procesada: {extra_idx} | Outliers: {stats['outliers_removidos']}")
 
-# -----------------------------------------------------------------
-# 13) Eliminar duplicados completos
-# -----------------------------------------------------------------
-duplicados_antes = int(df.duplicated().sum())
-df.drop_duplicates(inplace=True)
-duplicados_despues = int(df.duplicated().sum())
-
-print(f"🧹 Filas duplicadas eliminadas: {duplicados_antes - duplicados_despues}")
 
 # -----------------------------------------------------------------
-# 14) Métricas de limpieza
+# 13) Métricas de limpieza
 # -----------------------------------------------------------------
 caravan_idx = 85
 tiene_caravan = caravan_idx in binary_cols
@@ -361,7 +353,7 @@ eda_stats = {
         "sociodemograficas": len(sociodem_cols),
         "contribuciones_P": len(P_cols),
         "numero_seguros_A": len(A_cols),
-        "adicional_continua": 1 if extra_idx in df.columns else 0
+        "adicional": 1 if extra_idx in df.columns else 0
     }
 }
 
@@ -384,8 +376,6 @@ metrics = {
         "valores_nulos": int(df.isna().sum().sum())
     },
     "cambios_realizados": {
-        "filas_eliminadas": int(df_raw.shape[0] - df.shape[0]),
-        "duplicados_eliminados": duplicados_antes - duplicados_despues,
         "valores_nulos_imputados": total_nulls_imputed,
         "outliers_corregidos": total_outliers_removed
     },
@@ -397,7 +387,7 @@ print("Métricas de limpieza:", metrics["cambios_realizados"])
 # 15) Guardar resultados
 # -----------------------------------------------------------------
 OUT_DATA_PATH = os.path.join(OUT_DIR_DATA, "insurance_clean.csv")
-OUT_METRICS_PATH = os.path.join(OUT_DIR_RES, "eda_cleaning_metrics.json")
+OUT_METRICS_PATH = os.path.join(OUT_DIR_RES, "eda_metrics.json")
 
 safe_to_csv(df, OUT_DATA_PATH)
 with open(OUT_METRICS_PATH, "w", encoding="utf-8") as f:
