@@ -1,0 +1,18 @@
+{
+  "dataset_original": {
+    "filas": 5938,
+    "columnas": 87,
+    "valores_nulos": 6369
+  },
+  "dataset_limpio": {
+    "filas": 5919,
+    "columnas": 87,
+    "valores_nulos": 0
+  },
+  "cambios_realizados": {
+    "filas_eliminadas": 19,
+    "duplicados_eliminados": 19,
+    "valores_nulos_imputados": 9349,
+    "outliers_corregidos": 7218
+  }
+}
