@@ -17,13 +17,13 @@ import pandas as pd
 # ------------------------
 # 1) Cargar dataset origen
 # ------------------------
-SRC_PATH = "dataset/insurance_company_modified.csv"
-OUT_DIR_DATA = "data"
-OUT_DIR_RES = "results"
+SRC_PATH = "../dataset/insurance_company_modified.csv"
+OUT_DIR_DATA = "../data"
+OUT_DIR_RES = "../results"
 os.makedirs(OUT_DIR_DATA, exist_ok=True)
 os.makedirs(OUT_DIR_RES, exist_ok=True)
 
-df_raw = pd.read_csv(SRC_PATH, low_memory=False)
+df_raw = pd.read_csv(SRC_PATH,header=None ,low_memory=False)
 print("✅ Cargado:", SRC_PATH, "| Shape:", df_raw.shape)
 
 # -----------------------------------------------------
