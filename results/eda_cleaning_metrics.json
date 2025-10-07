@@ -1,0 +1,482 @@
+{
+  "dataset_original": {
+    "filas": 5938,
+    "columnas": 87,
+    "valores_nulos": 6369
+  },
+  "dataset_limpio": {
+    "filas": 5919,
+    "columnas": 87,
+    "valores_nulos": 0
+  },
+  "cambios_realizados": {
+    "filas_eliminadas": 19,
+    "duplicados_eliminados": 19,
+    "valores_nulos_imputados": 9349,
+    "outliers_corregidos": 7218
+  },
+  "variables_binarias": {
+    "19": {
+      "valores_nulos": 92,
+      "valores_invalidos": 44,
+      "moda_usada": 0.0
+    },
+    "40": {
+      "valores_nulos": 102,
+      "valores_invalidos": 33,
+      "moda_usada": 0.0
+    },
+    "44": {
+      "valores_nulos": 86,
+      "valores_invalidos": 34,
+      "moda_usada": 0.0
+    },
+    "45": {
+      "valores_nulos": 84,
+      "valores_invalidos": 26,
+      "moda_usada": 0.0
+    },
+    "47": {
+      "valores_nulos": 95,
+      "valores_invalidos": 36,
+      "moda_usada": 0.0
+    },
+    "48": {
+      "valores_nulos": 103,
+      "valores_invalidos": 34,
+      "moda_usada": 0.0
+    },
+    "49": {
+      "valores_nulos": 79,
+      "valores_invalidos": 37,
+      "moda_usada": 0.0
+    },
+    "50": {
+      "valores_nulos": 87,
+      "valores_invalidos": 27,
+      "moda_usada": 0.0
+    },
+    "51": {
+      "valores_nulos": 93,
+      "valores_invalidos": 33,
+      "moda_usada": 0.0
+    },
+    "52": {
+      "valores_nulos": 97,
+      "valores_invalidos": 28,
+      "moda_usada": 0.0
+    },
+    "53": {
+      "valores_nulos": 88,
+      "valores_invalidos": 35,
+      "moda_usada": 0.0
+    },
+    "54": {
+      "valores_nulos": 79,
+      "valores_invalidos": 40,
+      "moda_usada": 0.0
+    },
+    "55": {
+      "valores_nulos": 105,
+      "valores_invalidos": 31,
+      "moda_usada": 0.0
+    },
+    "56": {
+      "valores_nulos": 105,
+      "valores_invalidos": 32,
+      "moda_usada": 0.0
+    },
+    "57": {
+      "valores_nulos": 80,
+      "valores_invalidos": 34,
+      "moda_usada": 0.0
+    },
+    "59": {
+      "valores_nulos": 81,
+      "valores_invalidos": 34,
+      "moda_usada": 0.0
+    },
+    "60": {
+      "valores_nulos": 80,
+      "valores_invalidos": 40,
+      "moda_usada": 0.0
+    },
+    "61": {
+      "valores_nulos": 102,
+      "valores_invalidos": 29,
+      "moda_usada": 0.0
+    },
+    "62": {
+      "valores_nulos": 84,
+      "valores_invalidos": 47,
+      "moda_usada": 0.0
+    },
+    "63": {
+      "valores_nulos": 73,
+      "valores_invalidos": 35,
+      "moda_usada": 0.0
+    },
+    "64": {
+      "valores_nulos": 95,
+      "valores_invalidos": 48,
+      "moda_usada": 0.0
+    },
+    "65": {
+      "valores_nulos": 93,
+      "valores_invalidos": 21,
+      "moda_usada": 0.0
+    },
+    "66": {
+      "valores_nulos": 78,
+      "valores_invalidos": 30,
+      "moda_usada": 0.0
+    },
+    "67": {
+      "valores_nulos": 87,
+      "valores_invalidos": 58,
+      "moda_usada": 0.0
+    },
+    "68": {
+      "valores_nulos": 86,
+      "valores_invalidos": 33,
+      "moda_usada": 0.0
+    },
+    "69": {
+      "valores_nulos": 87,
+      "valores_invalidos": 33,
+      "moda_usada": 0.0
+    },
+    "70": {
+      "valores_nulos": 89,
+      "valores_invalidos": 24,
+      "moda_usada": 0.0
+    },
+    "71": {
+      "valores_nulos": 80,
+      "valores_invalidos": 34,
+      "moda_usada": 0.0
+    },
+    "72": {
+      "valores_nulos": 79,
+      "valores_invalidos": 23,
+      "moda_usada": 0.0
+    },
+    "73": {
+      "valores_nulos": 112,
+      "valores_invalidos": 27,
+      "moda_usada": 0.0
+    },
+    "74": {
+      "valores_nulos": 94,
+      "valores_invalidos": 31,
+      "moda_usada": 0.0
+    },
+    "75": {
+      "valores_nulos": 101,
+      "valores_invalidos": 34,
+      "moda_usada": 0.0
+    },
+    "76": {
+      "valores_nulos": 69,
+      "valores_invalidos": 22,
+      "moda_usada": 0.0
+    },
+    "77": {
+      "valores_nulos": 83,
+      "valores_invalidos": 29,
+      "moda_usada": 0.0
+    },
+    "78": {
+      "valores_nulos": 80,
+      "valores_invalidos": 24,
+      "moda_usada": 0.0
+    },
+    "79": {
+      "valores_nulos": 87,
+      "valores_invalidos": 53,
+      "moda_usada": 1.0
+    },
+    "80": {
+      "valores_nulos": 96,
+      "valores_invalidos": 32,
+      "moda_usada": 0.0
+    },
+    "81": {
+      "valores_nulos": 68,
+      "valores_invalidos": 31,
+      "moda_usada": 0.0
+    },
+    "82": {
+      "valores_nulos": 74,
+      "valores_invalidos": 33,
+      "moda_usada": 0.0
+    },
+    "83": {
+      "valores_nulos": 74,
+      "valores_invalidos": 33,
+      "moda_usada": 0.0
+    },
+    "84": {
+      "valores_nulos": 83,
+      "valores_invalidos": 30,
+      "moda_usada": 0.0
+    },
+    "85": {
+      "valores_nulos": 109,
+      "valores_invalidos": 23,
+      "moda_usada": 0.0
+    }
+  },
+  "variables_sociodemograficas": {
+    "0": {
+      "valores_nulos": 88,
+      "mediana_usada": 30.0,
+      "outliers_removidos": 73
+    },
+    "1": {
+      "valores_nulos": 96,
+      "mediana_usada": 1.0,
+      "outliers_removidos": 616
+    },
+    "2": {
+      "valores_nulos": 86,
+      "mediana_usada": 3.0,
+      "outliers_removidos": 130
+    },
+    "3": {
+      "valores_nulos": 93,
+      "mediana_usada": 3.0,
+      "outliers_removidos": 299
+    },
+    "4": {
+      "valores_nulos": 86,
+      "mediana_usada": 7.0,
+      "outliers_removidos": 58
+    },
+    "5": {
+      "valores_nulos": 95,
+      "mediana_usada": 0.0,
+      "outliers_removidos": 285
+    },
+    "6": {
+      "valores_nulos": 101,
+      "mediana_usada": 5.0,
+      "outliers_removidos": 136
+    },
+    "7": {
+      "valores_nulos": 81,
+      "mediana_usada": 1.0,
+      "outliers_removidos": 51
+    },
+    "8": {
+      "valores_nulos": 82,
+      "mediana_usada": 3.0,
+      "outliers_removidos": 53
+    },
+    "9": {
+      "valores_nulos": 80,
+      "mediana_usada": 6.0,
+      "outliers_removidos": 208
+    },
+    "10": {
+      "valores_nulos": 88,
+      "mediana_usada": 1.0,
+      "outliers_removidos": 317
+    },
+    "11": {
+      "valores_nulos": 87,
+      "mediana_usada": 2.0,
+      "outliers_removidos": 161
+    },
+    "12": {
+      "valores_nulos": 86,
+      "mediana_usada": 2.0,
+      "outliers_removidos": 97
+    },
+    "13": {
+      "valores_nulos": 108,
+      "mediana_usada": 3.0,
+      "outliers_removidos": 98
+    },
+    "14": {
+      "valores_nulos": 84,
+      "mediana_usada": 4.0,
+      "outliers_removidos": 53
+    },
+    "15": {
+      "valores_nulos": 90,
+      "mediana_usada": 1.0,
+      "outliers_removidos": 206
+    },
+    "16": {
+      "valores_nulos": 78,
+      "mediana_usada": 3.0,
+      "outliers_removidos": 130
+    },
+    "17": {
+      "valores_nulos": 88,
+      "mediana_usada": 5.0,
+      "outliers_removidos": 61
+    },
+    "18": {
+      "valores_nulos": 99,
+      "mediana_usada": 2.0,
+      "outliers_removidos": 118
+    },
+    "20": {
+      "valores_nulos": 98,
+      "mediana_usada": 0.0,
+      "outliers_removidos": 341
+    },
+    "21": {
+      "valores_nulos": 106,
+      "mediana_usada": 3.0,
+      "outliers_removidos": 149
+    },
+    "22": {
+      "valores_nulos": 70,
+      "mediana_usada": 2.0,
+      "outliers_removidos": 150
+    },
+    "23": {
+      "valores_nulos": 93,
+      "mediana_usada": 2.0,
+      "outliers_removidos": 136
+    },
+    "24": {
+      "valores_nulos": 97,
+      "mediana_usada": 1.0,
+      "outliers_removidos": 297
+    },
+    "25": {
+      "valores_nulos": 105,
+      "mediana_usada": 2.0,
+      "outliers_removidos": 485
+    },
+    "26": {
+      "valores_nulos": 81,
+      "mediana_usada": 2.0,
+      "outliers_removidos": 75
+    },
+    "27": {
+      "valores_nulos": 105,
+      "mediana_usada": 4.0,
+      "outliers_removidos": 45
+    },
+    "28": {
+      "valores_nulos": 91,
+      "mediana_usada": 1.0,
+      "outliers_removidos": 81
+    },
+    "29": {
+      "valores_nulos": 95,
+      "mediana_usada": 4.0,
+      "outliers_removidos": 53
+    },
+    "30": {
+      "valores_nulos": 75,
+      "mediana_usada": 5.0,
+      "outliers_removidos": 57
+    },
+    "31": {
+      "valores_nulos": 67,
+      "mediana_usada": 6.0,
+      "outliers_removidos": 93
+    },
+    "32": {
+      "valores_nulos": 64,
+      "mediana_usada": 1.0,
+      "outliers_removidos": 60
+    },
+    "33": {
+      "valores_nulos": 81,
+      "mediana_usada": 2.0,
+      "outliers_removidos": 111
+    },
+    "34": {
+      "valores_nulos": 84,
+      "mediana_usada": 7.0,
+      "outliers_removidos": 123
+    },
+    "35": {
+      "valores_nulos": 93,
+      "mediana_usada": 2.0,
+      "outliers_removidos": 116
+    },
+    "36": {
+      "valores_nulos": 78,
+      "mediana_usada": 2.0,
+      "outliers_removidos": 111
+    },
+    "37": {
+      "valores_nulos": 104,
+      "mediana_usada": 4.0,
+      "outliers_removidos": 59
+    },
+    "38": {
+      "valores_nulos": 100,
+      "mediana_usada": 3.0,
+      "outliers_removidos": 134
+    },
+    "39": {
+      "valores_nulos": 74,
+      "mediana_usada": 0.0,
+      "outliers_removidos": 515
+    },
+    "41": {
+      "valores_nulos": 86,
+      "mediana_usada": 4.0,
+      "outliers_removidos": 685
+    },
+    "42": {
+      "valores_nulos": 76,
+      "mediana_usada": 4.0,
+      "outliers_removidos": 58
+    }
+  },
+  "variables_contribuciones_P": {
+    "43": {
+      "valores_nulos": 103,
+      "mediana_usada": 0.0,
+      "outliers_removidos": 44
+    },
+    "46": {
+      "valores_nulos": 80,
+      "mediana_usada": 5.0,
+      "outliers_removidos": 36
+    },
+    "58": {
+      "valores_nulos": 112,
+      "mediana_usada": 2.0,
+      "outliers_removidos": 54
+    }
+  },
+  "variables_numero_seguros_A": {},
+  "variable_adicional": {
+    "86": {
+      "valores_nulos": 1736,
+      "mediana_usada": 492.0,
+      "outliers_removidos": 0
+    }
+  },
+  "estadisticas_eda": {
+    "resumen_general": {
+      "filas_totales": 5919,
+      "columnas_totales": 87,
+      "valores_nulos_finales": 0,
+      "porcentaje_completitud": 100.0
+    },
+    "clasificacion_variables": {
+      "binarias": 42,
+      "sociodemograficas": 41,
+      "contribuciones_P": 3,
+      "numero_seguros_A": 0,
+      "adicional_continua": 1
+    },
+    "distribucion_variable_objetivo": {
+      "CARAVAN_0": 5568,
+      "CARAVAN_1": 351,
+      "proporcion_positivos": 5.93
+    }
+  }
+}
