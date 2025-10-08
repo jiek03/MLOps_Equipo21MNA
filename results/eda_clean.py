@@ -19,6 +19,7 @@ import numpy as np
 import pandas as pd
 import tempfile
 from datetime import datetime
+import pickle
 
 # ------------------------
 # 1) Cargar dataset origen
@@ -32,8 +33,28 @@ os.makedirs(OUT_DIR_RES, exist_ok=True)
 df_raw = pd.read_csv(SRC_PATH, header=None, low_memory=False)
 print("✅ Cargado:", SRC_PATH, "| Shape:", df_raw.shape)
 
+# ------------------------
+# 2) Carga del diccionario auxiliar
+# ------------------------
+
+with open( OUT_DIR_RES + "/nombres_columnas.pkl" , "rb") as f:
+    dict_columnas = pickle.load(f)
+
+
+print("✅ Cargado:", OUT_DIR_RES + "/nombres_columnas.pkl")
+
+
+# ------------------------
+# 3) Renombramos las columnas para facilitar el manejo de los datos
+# ------------------------
+df = df_raw.copy()
+df = df.iloc[1:].reset_index(drop=True)
+df.rename(columns=dict_columnas ,inplace=True)
+
+#print(df.head())
+
 # -----------------------------------------------------
-# 2) Función para convertir string a número
+# 4) Función para convertir string a número
 # -----------------------------------------------------
 def to_number_or_nan(x):
     # Si ya es numérico, lo devuelvo tal cual
@@ -44,87 +65,78 @@ def to_number_or_nan(x):
     if pd.isna(x):
         return np.nan
     
-    # Si es string, hago conversión a NaN
+    # Si es string, intento convertir a número; si no se puede → NaN
     if isinstance(x, str):
         s = x.strip().lower()
-        # Casos que equivalen a missing
         if s in {"", "na", "n/a", "none", "null", "nan", "?", "-", "--"}:
             return np.nan
-        # Intento convertir a float
-        valor_numerico = pd.to_numeric(s, errors="coerce")
-        return valor_numerico
+        return pd.to_numeric(s, errors="coerce")
     
     # Cualquier otro tipo se convierte en NaN
     return np.nan
 
 # -----------------------------------------------------
-# 3) Calcular moda de forma segura
+# 5) Calcular moda de forma segura
 # -----------------------------------------------------
 def safe_mode(series):
-    # Calcular moda excluyendo NaN
-    moda = series.mode(dropna=True)
-    # Si hay moda, devolver el primer valor
-    if not moda.empty:
-        return moda.iloc[0]
-    # Si no hay moda, devolver NaN
-    return np.nan
+    m = series.mode(dropna=True)
+    return m.iloc[0] if not m.empty else np.nan
 
 # -----------------------------------------------------
-# 4) Detectar y remover outliers usando IQR
+# 6) Winsorización por IQR con conteo de recortes
 # -----------------------------------------------------
-def remove_outliers_iqr(series):
-    # Convertir a numérico
+def winsorize_iqr(series, iqr_k=1.5, hard_clip=None, zero_threshold=0.6, min_nonzero=20):
+    """
+    Retorna (serie_winsorizada, n_recortes),
+    donde n_recortes cuenta cuántos valores fueron recortados (clip) por IQR/hard_clip.
+    """
     s = pd.to_numeric(series, errors="coerce")
-    # Si está vacía, devolver la serie original
     if s.dropna().empty:
         return s, 0
-    
-    # Calcular Q1, Q3 e IQR
-    Q1 = s.quantile(0.25)
-    Q3 = s.quantile(0.75)
-    IQR = Q3 - Q1
-    
-    # Definir límites para outliers
-    limite_inferior = Q1 - 1.5 * IQR
-    limite_superior = Q3 + 1.5 * IQR
-    
-    # Identificar outliers
-    outliers_mask = (s < limite_inferior) | (s > limite_superior)
-    cantidad_outliers = int(outliers_mask.sum())
-    
-    # Reemplazar outliers con la mediana
-    if cantidad_outliers > 0:
-        mediana = s.median()
-        s_limpia = s.copy()
-        s_limpia[outliers_mask] = mediana
-        return s_limpia, cantidad_outliers
-    
-    return s, 0
+
+    # Detectar inflación de ceros
+    s_notnull = s.dropna()
+    share_zero = (s_notnull == 0).mean()
+    s_nz = s_notnull[s_notnull != 0]
+
+    # Base para IQR: solo ≠0 si hay muchos 0 y suficientes ≠0; si no, todos los no nulos
+    if share_zero >= zero_threshold and len(s_nz) >= min_nonzero:
+        base = s_nz
+    else:
+        base = s_notnull
+
+    # Calcular límites por IQR
+    q1, q3 = base.quantile(0.25), base.quantile(0.75)
+    iqr = q3 - q1
+    lo, hi = q1 - iqr_k * iqr, q3 + iqr_k * iqr
+
+    # Clip por IQR
+    s_w = s.clip(lower=lo, upper=hi)
+
+    # Clip duro opcional (respeta dominios, p.ej. P*: (0,9), A*: (0,12))
+    if hard_clip is not None:
+        hlo, hhi = hard_clip
+        s_w = s_w.clip(lower=hlo, upper=hhi)
+
+    n_recortes = int((~s_w.eq(s)).sum())
+    return s_w, n_recortes
 
 # -----------------------------------------------------
-# 5) Guardar CSV de forma segura con reintentos
+# 7) Guardar CSV de forma segura con reintentos
 # -----------------------------------------------------
 def safe_to_csv(df, path, retries=5, wait_sec=1.0):
-    # Crear directorio si no existe
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
-    # Crear archivo temporal
     fd, tmp = tempfile.mkstemp(prefix="tmp_", suffix=".csv", dir=os.path.dirname(path) or ".")
     os.close(fd)
-    # Guardar en archivo temporal
     df.to_csv(tmp, index=False, encoding="utf-8")
-    # Intentar mover el archivo temporal al destino
     os.replace(tmp, path)
 
 # -----------------------------------------------------------------
-# 6) Aplicar conversión a numérico
+# 8) Aplicar conversión a numérico a TODAS las columnas
 # -----------------------------------------------------------------
-df = df_raw.copy()
 nulls_before = int(df.isna().sum().sum())
 
-# Limpieza: CUALQUIER cadena de texto se convierte en NaN
 df = df.apply(lambda col: col.map(to_number_or_nan))
-
-# Fuerzo que TODAS las columnas queden numéricas
 for c in df.columns:
     df[c] = pd.to_numeric(df[c], errors="coerce")
 
@@ -132,237 +144,128 @@ nulls_after_conversion = int(df.isna().sum().sum())
 print(f" Valores nulos antes: {nulls_before} | después: {nulls_after_conversion}")
 
 # -----------------------------------------------------------------
-# 7) Clasificación de variables
+# 9) Clasificación de variables (por NOMBRE, no por índice)
 # -----------------------------------------------------------------
-extra_idx = 86  # Columna adicional continua
+# - P*: columnas de contribuciones (prefijo 'P'), dominio 0–9 (escala L4).
+# - A*: columnas de número de pólizas (prefijo 'A'), dominio 0–12.
+# - Binaria real: sólo 'CARAVAN' (si existe).
+# - Sociodemográficas: resto (no P*, no A*, no binaria real).
+# - Ordinales pequeñas según diccionario: MOSTYPE(1–41), MOSHOOFD(1–10), MGEMLEEF(1–6), MGODRK(0–9), PWAPART(0–9).
 
-# Detectar columnas binarias automáticamente
-# Criterio: más del 90% de los valores no nulos son 0 o 1
-binary_cols = []
-for c in df.columns:
-    if c == extra_idx:
-        continue
-    valores_no_nulos = df[c].dropna()
-    if len(valores_no_nulos) == 0:
-        continue
-    count_0_o_1 = ((valores_no_nulos == 0) | (valores_no_nulos == 1) | (valores_no_nulos == 0.0) | (valores_no_nulos == 1.0)).sum()
-    proporcion_binaria = count_0_o_1 / len(valores_no_nulos)
-    if proporcion_binaria > 0.90:
-        binary_cols.append(c)
+cols = list(df.columns)
 
-# Identificar columnas P* (contribuciones: dominio 0-9)
-P_cols = [c for c in range(43, 64) if c not in binary_cols and c != extra_idx]
+# Forzar nombres string si se usó dict_columnas; si no, intentar convertir índices a str para prefijos
+columns_str = [str(c) for c in cols]
 
-# Identificar columnas A* (número de seguros: dominio 0-12)
-A_cols = [c for c in range(64, 86) if c not in binary_cols and c != extra_idx]
+# Detectar familias por prefijo de nombre
+P_cols = [c for c in df.columns if isinstance(c, str) and c.startswith("P")]
+A_cols = [c for c in df.columns if isinstance(c, str) and c.startswith("A")]
 
-# Variables sociodemográficas (columnas 0-42)
-sociodem_cols = [c for c in range(0, 43) if c not in binary_cols and c != extra_idx]
+# Ordinales pequeñas del diccionario
+ordinal_small = [c for c in ["MOSTYPE", "MOSHOOFD", "MGEMLEEF", "MGODRK", "PWAPART"] if c in df.columns]
 
-print(f"Variables binarias: {len(binary_cols)} | Sociodemográficas: {len(sociodem_cols)} | P*: {len(P_cols)} | A*: {len(A_cols)}")
+# Binaria real (objetivo)
+target_col = "CARAVAN" if "CARAVAN" in df.columns else None
+binary_cols = [target_col] if target_col else []
 
-# -----------------------------------------------------------------
-# 8) Limpieza de variables binarias
-# -----------------------------------------------------------------
-# Solo deben contener valores 0 y 1
-# Si hay valores que NO son 0 o 1, reemplazarlos con la moda
-# Si hay valores vacíos (NaN), reemplazarlos con la moda
+# Sociodemográficas = resto (excluyendo P*, A*, ordinales y la binaria)
+excluir = set(P_cols) | set(A_cols) | set(ordinal_small) | set(binary_cols)
+sociodem_cols = [c for c in df.columns if c not in excluir]
 
-binary_cleaning_stats = {}
-
-for c in binary_cols:
-    stats = {
-        "valores_nulos": int(df[c].isna().sum()),
-        "valores_invalidos": 0,
-        "moda_usada": None
-    }
-    
-    # Contar valores que no son 0, 1 o NaN
-    valores_unicos = df[c].dropna().unique()
-    valores_invalidos = [v for v in valores_unicos if v not in [0, 0.0, 1, 1.0]]
-    stats["valores_invalidos"] = len(valores_invalidos)
-    
-    # Si hay valores inválidos o nulos, imputar con la moda
-    if stats["valores_nulos"] > 0 or stats["valores_invalidos"] > 0:
-        # Calcular moda solo de valores válidos (0 y 1)
-        valores_validos = df[c][(df[c] == 0) | (df[c] == 1) | (df[c] == 0.0) | (df[c] == 1.0)]
-        moda = safe_mode(valores_validos)
-        # Si no hay moda válida, usar 0 por defecto
-        if pd.isna(moda):
-            moda = 0
-        stats["moda_usada"] = float(moda)
-        # Crear máscara para identificar valores a reemplazar
-        mascara_reemplazar = df[c].isna() | ~df[c].isin([0, 1, 0.0, 1.0])
-        # Reemplazar SOLO donde la máscara es True
-        df.loc[mascara_reemplazar, c] = moda
-    
-    binary_cleaning_stats[int(c)] = stats
-
-print(f"✅ Variables binarias procesadas: {len(binary_cols)}")
+print(f"CARAVAN presente: {bool(target_col)} | P*: {len(P_cols)} | A*: {len(A_cols)} | "
+      f"Ordinales: {len(ordinal_small)} | Sociodemográficas: {len(sociodem_cols)}")
 
 # -----------------------------------------------------------------
-# 9) Limpieza de variables sociodemográficas
+# 10) CARAVAN (binaria real): imputar moda {0,1}
 # -----------------------------------------------------------------
-# Reemplazar valores vacíos (NaN) con la MEDIANA
-# Detectar y eliminar outliers usando IQR
+if target_col:
+    moda = safe_mode(df[target_col].dropna().clip(0, 1))  # por seguridad al rango binario
+    moda = int(moda) if pd.notna(moda) else 0
+    df[target_col] = df[target_col].fillna(moda).clip(0, 1).round().astype("int8")
 
-sociodem_cleaning_stats = {}
+# -----------------------------------------------------------------
+# 11) Sociodemográficas: imputar MEDIANA + winsorizar IQR (sin hard clip)
+# -----------------------------------------------------------------
 total_outliers_sociodem = 0
-
 for c in sociodem_cols:
-    stats = {
-        "valores_nulos": int(df[c].isna().sum()),
-        "mediana_usada": None,
-        "outliers_removidos": 0
-    }
-    
-    # Calcular mediana antes de imputar
-    mediana = df[c].median(skipna=True)
-    stats["mediana_usada"] = float(mediana) if not pd.isna(mediana) else None
-    
-    # Imputar valores nulos con la mediana
-    if stats["valores_nulos"] > 0:
-        df[c] = df[c].fillna(mediana)
-    
-    # Detectar y remover outliers usando IQR
-    df[c], outliers_count = remove_outliers_iqr(df[c])
-    stats["outliers_removidos"] = outliers_count
-    total_outliers_sociodem += outliers_count
-    
-    sociodem_cleaning_stats[int(c)] = stats
-
-print(f"✅ Variables sociodemográficas procesadas: {len(sociodem_cols)} | Outliers: {total_outliers_sociodem}")
+    if df[c].isna().any():
+        df[c] = df[c].fillna(df[c].median(skipna=True))
+    df[c], rec = winsorize_iqr(df[c], iqr_k=1.5, hard_clip=None)
+    total_outliers_sociodem += rec
 
 # -----------------------------------------------------------------
-# 10) Limpieza de variables P* (contribuciones)
+# 12) P* (0–9): mediana + winsorizar(IQR) + clip duro [0,9] + entero
 # -----------------------------------------------------------------
-# Dominio: 0-9 según escala L4
-# Reemplazar valores vacíos con la MEDIANA
-# Detectar y eliminar outliers usando IQR
-
-P_cleaning_stats = {}
 total_outliers_P = 0
-
 for c in P_cols:
-    stats = {
-        "valores_nulos": int(df[c].isna().sum()),
-        "mediana_usada": None,
-        "outliers_removidos": 0
-    }
-    
-    mediana = df[c].median(skipna=True)
-    stats["mediana_usada"] = float(mediana) if not pd.isna(mediana) else None
-    
-    if stats["valores_nulos"] > 0:
-        df[c] = df[c].fillna(mediana)
-    
-    df[c], outliers_count = remove_outliers_iqr(df[c])
-    stats["outliers_removidos"] = outliers_count
-    total_outliers_P += outliers_count
-    
-    P_cleaning_stats[int(c)] = stats
-
-print(f"✅ Variables P* procesadas: {len(P_cols)} | Outliers: {total_outliers_P}")
+    if df[c].isna().any():
+        df[c] = df[c].fillna(df[c].median(skipna=True))
+    df[c], rec = winsorize_iqr(df[c], iqr_k=1.5, hard_clip=(0, 9))
+    total_outliers_P += rec
+    df[c] = df[c].round().clip(0, 9).astype("int8")
 
 # -----------------------------------------------------------------
-# 11) Limpieza de variables A* (número de seguros)
+# 13) A* (0–12): mediana + winsorizar(IQR) + clip duro [0,12] + entero
 # -----------------------------------------------------------------
-# Dominio: 0-12 (número de pólizas)
-# Reemplazar valores vacíos con la MEDIANA
-# Detectar y eliminar outliers usando IQR
-
-A_cleaning_stats = {}
 total_outliers_A = 0
-
 for c in A_cols:
-    stats = {
-        "valores_nulos": int(df[c].isna().sum()),
-        "mediana_usada": None,
-        "outliers_removidos": 0
-    }
-    
-    mediana = df[c].median(skipna=True)
-    stats["mediana_usada"] = float(mediana) if not pd.isna(mediana) else None
-    
-    if stats["valores_nulos"] > 0:
-        df[c] = df[c].fillna(mediana)
-    
-    df[c], outliers_count = remove_outliers_iqr(df[c])
-    stats["outliers_removidos"] = outliers_count
-    total_outliers_A += outliers_count
-    
-    A_cleaning_stats[int(c)] = stats
-
-print(f"✅ Variables A* procesadas: {len(A_cols)} | Outliers: {total_outliers_A}")
+    if df[c].isna().any():
+        df[c] = df[c].fillna(df[c].median(skipna=True))
+    df[c], rec = winsorize_iqr(df[c], iqr_k=1.5, hard_clip=(0, 12))
+    total_outliers_A += rec
+    df[c] = df[c].round().clip(0, 12).astype("int8")
 
 # -----------------------------------------------------------------
-# 12) Limpieza de columna adicional (continua)
+# 14) Ordinales pequeñas: mediana + clip a dominio + entero
 # -----------------------------------------------------------------
-extra_cleaning_stats = {}
-
-if extra_idx in df.columns:
-    stats = {
-        "valores_nulos": int(df[extra_idx].isna().sum()),
-        "mediana_usada": None,
-        "outliers_removidos": 0
-    }
-    
-    mediana = df[extra_idx].median(skipna=True)
-    stats["mediana_usada"] = float(mediana) if not pd.isna(mediana) else None
-    
-    if stats["valores_nulos"] > 0:
-        df[extra_idx] = df[extra_idx].fillna(mediana)
-    
-    df[extra_idx], outliers_count = remove_outliers_iqr(df[extra_idx])
-    stats["outliers_removidos"] = outliers_count
-    
-    extra_cleaning_stats[int(extra_idx)] = stats
-    print(f"✅ Columna adicional procesada: {extra_idx} | Outliers: {stats['outliers_removidos']}")
-
-
-# -----------------------------------------------------------------
-# 13) Métricas de limpieza
-# -----------------------------------------------------------------
-caravan_idx = 85
-tiene_caravan = caravan_idx in binary_cols
-
-# Calcular totales
-total_outliers_removed = total_outliers_sociodem + total_outliers_P + total_outliers_A
-if extra_idx in extra_cleaning_stats:
-    total_outliers_removed += extra_cleaning_stats[extra_idx]["outliers_removidos"]
-
-total_nulls_imputed = (
-    sum(s["valores_nulos"] for s in binary_cleaning_stats.values()) +
-    sum(s["valores_nulos"] for s in sociodem_cleaning_stats.values()) +
-    sum(s["valores_nulos"] for s in P_cleaning_stats.values()) +
-    sum(s["valores_nulos"] for s in A_cleaning_stats.values())
-)
-if extra_idx in extra_cleaning_stats:
-    total_nulls_imputed += extra_cleaning_stats[extra_idx]["valores_nulos"]
-
-# Compilar métricas
-eda_stats = {
-    "resumen_general": {
-        "filas_totales": int(df.shape[0]),
-        "columnas_totales": int(df.shape[1]),
-        "valores_nulos_finales": int(df.isna().sum().sum()),
-        "porcentaje_completitud": round((1 - df.isna().sum().sum() / (df.shape[0] * df.shape[1])) * 100, 2)
-    },
-    "clasificacion_variables": {
-        "binarias": len(binary_cols),
-        "sociodemograficas": len(sociodem_cols),
-        "contribuciones_P": len(P_cols),
-        "numero_seguros_A": len(A_cols),
-        "adicional": 1 if extra_idx in df.columns else 0
-    }
+ordinal_domains = {
+    "MOSTYPE":  (1, 41),
+    "MOSHOOFD": (1, 10),
+    "MGEMLEEF": (1, 6),
+    "MGODRK":   (0, 9),
+    "PWAPART":  (0, 9),
 }
+total_outliers_ordinal = 0
+for c in ordinal_small:
+    lo, hi = ordinal_domains[c]
+    if df[c].isna().any():
+        df[c] = df[c].fillna(df[c].median(skipna=True))
+    # Por consistencia medimos recortes sólo si había fuera de rango
+    before = df[c].copy()
+    df[c] = df[c].clip(lo, hi)
+    total_outliers_ordinal += int((~df[c].eq(before)).sum())
+    df[c] = df[c].round().astype("int8")
 
-if tiene_caravan:
-    eda_stats["distribucion_variable_objetivo"] = {
-        "CARAVAN_0": int((df[caravan_idx] == 0).sum()),
-        "CARAVAN_1": int((df[caravan_idx] == 1).sum()),
-        "proporcion_positivos": round((df[caravan_idx] == 1).sum() / len(df) * 100, 2)
-    }
+# -----------------------------------------------------------------
+# 15) Resto de M* (tasas/proporciones): mediana + winsorizar(IQR) + clip lógico
+# -----------------------------------------------------------------
+# Detectamos M* que no sean ordinales ni CARAVAN
+M_rest = [c for c in df.columns
+          if isinstance(c, str) and c.startswith("M")
+          and c not in ordinal_small and c != target_col]
+
+total_outliers_Mrest = 0
+for c in M_rest:
+    if df[c].isna().any():
+        df[c] = df[c].fillna(df[c].median(skipna=True))
+    # Elegir hard clip lógico: si el rango real ≤9, usar [0,9], si no asumir porcentaje [0,100]
+    vmax = df[c].max(skipna=True)
+    hard = (0, 9) if (pd.notna(vmax) and vmax <= 9) else (0, 100)
+    df[c], rec = winsorize_iqr(df[c], iqr_k=1.5, hard_clip=hard)
+    total_outliers_Mrest += rec
+    # Mantener como float (proporción)
+    df[c] = df[c].astype("float32")
+    
+# -----------------------------------------------------------------
+# 16) Métricas de limpieza
+# -----------------------------------------------------------------
+total_outliers_removed = (
+    total_outliers_sociodem
+    + total_outliers_P
+    + total_outliers_A
+    + total_outliers_ordinal
+    + total_outliers_Mrest
+)
 
 metrics = {
     "dataset_original": {
@@ -376,15 +279,22 @@ metrics = {
         "valores_nulos": int(df.isna().sum().sum())
     },
     "cambios_realizados": {
-        "valores_nulos_imputados": total_nulls_imputed,
-        "outliers_corregidos": total_outliers_removed
+        "outliers_corregidos": int(total_outliers_removed),
     },
+    "familias": {
+        "P_cols": len(P_cols),
+        "A_cols": len(A_cols),
+        "ordinales": len(ordinal_small),
+        "sociodemograficas": len(sociodem_cols),
+        "M_rest": len(M_rest),
+        "tiene_caravan": bool(target_col)
+    }
 }
 
-print("Métricas de limpieza:", metrics["cambios_realizados"])
+print("📊 Métricas de limpieza:", metrics["cambios_realizados"])
 
 # -----------------------------------------------------------------
-# 15) Guardar resultados
+# 17) Guardar resultados
 # -----------------------------------------------------------------
 OUT_DATA_PATH = os.path.join(OUT_DIR_DATA, "insurance_clean.csv")
 OUT_METRICS_PATH = os.path.join(OUT_DIR_RES, "eda_metrics.json")

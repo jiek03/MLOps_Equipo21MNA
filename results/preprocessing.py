@@ -40,18 +40,8 @@ with open( OUT_DIR_RES + "/nombres_columnas.pkl" , "rb") as f:
 
 print("✅ Cargado:", OUT_DIR_RES + "/nombres_columnas.pkl")
 
-
 # ------------------------
-# 3) Renombramos las columnas para facilitar el manejo de los datos
-# ------------------------
-
-df_limpio = df_limpio.iloc[1:].reset_index(drop=True)
-df_limpio.rename(columns=dict_columnas ,inplace=True)
-
-#print(df_limpio.head())
-
-# ------------------------
-# 4) Reducimos las categorías poco frecuentes
+# 3) Reducimos las categorías poco frecuentes
 # ------------------------
 
 def colapsar_categorias(series, prop_min=0.05, otra_cat=None):
@@ -76,7 +66,7 @@ for col in var_categoricas:
 
 
 # -----------------------------------------------------------------
-# 5) Clasificación de variables
+# 4) Clasificación de variables
 # -----------------------------------------------------------------
 
 variables_binarias_idx = [19, 40, 44, 45, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 59, 60, 61, 62, 63, 64, 65, 66, 
@@ -113,14 +103,6 @@ print(df_limpio[var_categoricas].describe().T)
 print("\nDescripción de variables P*:")
 print(df_limpio[P_cols].describe().T)
 
-# -----------------------------------------------------------------
-# 5) Correccion de variables binarias 
-# -----------------------------------------------------------------
 
-# Al revisar los resumenes estadísticos, se observa que algunas variables binarias tienen valores distintos a 0 y 1.
-# Se procede a corregir estas variables, asignando 1 a cualquier valor distinto de 0.
-
-for col in variables_binarias:
-    df_limpio[col] = df_limpio[col].apply(lambda x: 1 if x != 0 else 0)
 
 
