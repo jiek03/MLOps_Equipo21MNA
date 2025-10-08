@@ -45,6 +45,7 @@ print("✅ Cargado:", OUT_DIR_RES + "/nombres_columnas.pkl")
 # 3) Renombramos las columnas para facilitar el manejo de los datos
 # ------------------------
 
+df_limpio = df_limpio.iloc[1:].reset_index(drop=True)
 df_limpio.rename(columns=dict_columnas ,inplace=True)
 
 #print(df_limpio.head())
@@ -53,21 +54,23 @@ df_limpio.rename(columns=dict_columnas ,inplace=True)
 # 4) Reducimos las categorías poco frecuentes
 # ------------------------
 
-def colapsar_categorias(series, prop_min=0.05, otra_cat=100):
+def colapsar_categorias(series, prop_min=0.05, otra_cat=None):
     # prop_min = 0.05 → mantener solo las categorias con participación ≥5% 
     share = series.value_counts(normalize=True)
     keep = share[share >= prop_min].index
+    if otra_cat is None:
+        otra_cat = series.mode(dropna=True).iloc[0]
     #print(f"  - Categorías a mantener (≥{prop_min*100:.1f}%): {list(keep)}")
     #print(share)
     return series.where(series.isin(keep), otra_cat)
 
 
-var_categoricas = ['MOSTYPE','MGEMLEEF','MOSHOOFD','MGODRK','PWAPART'] # Variables con catalogo 
+var_categoricas = ['MGEMLEEF','MOSHOOFD','MGODRK','PWAPART'] # Variables con catalogo 
 
 for col in var_categoricas:
     print(f"Colapsando categorías en {col} ...")
     print("  - Categorías actuales:", df_limpio[col].value_counts().to_dict())
-    df_limpio[col] = colapsar_categorias(df_limpio[col], prop_min=0.05, otra_cat=100)
+    df_limpio[col] = colapsar_categorias(df_limpio[col], prop_min=0.05, otra_cat=None)
     print("  - Nuevas categorías:", df_limpio[col].value_counts().to_dict())
 
 
@@ -119,3 +122,5 @@ print(df_limpio[P_cols].describe().T)
 
 for col in variables_binarias:
     df_limpio[col] = df_limpio[col].apply(lambda x: 1 if x != 0 else 0)
+
+
