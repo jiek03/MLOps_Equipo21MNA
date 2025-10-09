@@ -255,6 +255,7 @@ for c in M_rest:
     total_outliers_Mrest += rec
     # Mantener como float (proporción)
     df[c] = df[c].astype("float32")
+    df = df.apply(lambda col: np.floor(col) if np.issubdtype(col.dtype, np.number) else col)
     
 # -----------------------------------------------------------------
 # 16) Métricas de limpieza
