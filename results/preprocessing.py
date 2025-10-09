@@ -68,19 +68,19 @@ sociodem_cols = [c for c in df_limpio.columns if c not in excluir]
 # 3) reducción de categorías poco frecuentes
 # ------------------------
 
-def colapsar_categorias(series, prop_min=0.05, otra_cat=100):
-    prop_min = 0.05 #→ mantener solo las categorias con participación ≥5% 
+def colapsar_categorias(series, prop_min=0.05, otra_cat=None):
     share = series.value_counts(normalize=True)
     keep = share[share >= prop_min].index
-    #print(f"  - Categorías a mantener (≥{prop_min*100:.1f}%): {list(keep)}")
-    #print(share)
+    if otra_cat is None:
+        otra_cat = series.mode(dropna=True).iloc[0]
     return series.where(series.isin(keep), otra_cat)
+
 
 
 for col in ordinal_small:
     print(f"Colapsando categorías en {col} ...")
     print("  - Categorías actuales:", df_limpio[col].value_counts().to_dict())
-    df_limpio[col] = colapsar_categorias(df_limpio[col], prop_min=0.05, otra_cat=100)
+    df_limpio[col] = colapsar_categorias(df_limpio[col], prop_min=0.05)
     print("  - Nuevas categorías:", df_limpio[col].value_counts().to_dict())
 
 

@@ -206,3 +206,9 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
+.vscode/
+data/*.csv
+results/*.pkl
+results/feature_order.json
+results/numeric_columns.json
+results/ohe_columns.json
