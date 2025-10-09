@@ -50,6 +50,7 @@ print("✅ Cargado:", OUT_DIR_RES + "/nombres_columnas.pkl")
 df = df_raw.copy()
 df = df.iloc[1:].reset_index(drop=True)
 df.rename(columns=dict_columnas ,inplace=True)
+df.columns = [str(c).strip().upper() for c in df.columns]
 
 #print(df.head())
 
@@ -83,37 +84,47 @@ def safe_mode(series):
     return m.iloc[0] if not m.empty else np.nan
 
 # -----------------------------------------------------
-# 6) Winsorización por IQR con conteo de recortes
+# 6) Winsorización por IQR
 # -----------------------------------------------------
 def winsorize_iqr(series, iqr_k=1.5, hard_clip=None, zero_threshold=0.6, min_nonzero=20):
-    """
-    Retorna (serie_winsorizada, n_recortes),
-    donde n_recortes cuenta cuántos valores fueron recortados (clip) por IQR/hard_clip.
-    """
     s = pd.to_numeric(series, errors="coerce")
+
+    # 1) Serie vacía → nada que hacer
     if s.dropna().empty:
         return s, 0
 
-    # Detectar inflación de ceros
+    # 2) Base para IQR (maneja columnas con gran cantidad de ceros)
     s_notnull = s.dropna()
-    share_zero = (s_notnull == 0).mean()
+    share_zero = (s_notnull == 0).mean() if len(s_notnull) else 0.0
     s_nz = s_notnull[s_notnull != 0]
+    base = s_nz if (share_zero >= zero_threshold and len(s_nz) >= min_nonzero) else s_notnull
 
-    # Base para IQR: solo ≠0 si hay muchos 0 y suficientes ≠0; si no, todos los no nulos
-    if share_zero >= zero_threshold and len(s_nz) >= min_nonzero:
-        base = s_nz
-    else:
-        base = s_notnull
+    # Si base vacía, sólo aplicar hard_clip si existe
+    if base.empty:
+        s_w = s.copy()
+        if hard_clip is not None:
+            lo, hi = hard_clip
+            s_w = s_w.clip(lower=lo, upper=hi)
+        return s_w, 0
 
-    # Calcular límites por IQR
+    # 3) Cuartiles e IQR
     q1, q3 = base.quantile(0.25), base.quantile(0.75)
     iqr = q3 - q1
-    lo, hi = q1 - iqr_k * iqr, q3 + iqr_k * iqr
 
-    # Clip por IQR
+    # 4) IQR no válido → sólo aplicar hard_clip si existe
+    if not np.isfinite(iqr) or iqr <= 0:
+        s_w = s.copy()
+        if hard_clip is not None:
+            lo, hi = hard_clip
+            s_w = s_w.clip(lower=lo, upper=hi)
+        n_recortes = int((~s_w.eq(s)).sum())
+        return s_w, n_recortes
+
+    # 5) Winsorizar por IQR
+    lo, hi = q1 - iqr_k * iqr, q3 + iqr_k * iqr
     s_w = s.clip(lower=lo, upper=hi)
 
-    # Clip duro opcional (respeta dominios, p.ej. P*: (0,9), A*: (0,12))
+    # 6) hard_clip duro opcional
     if hard_clip is not None:
         hlo, hhi = hard_clip
         s_w = s_w.clip(lower=hlo, upper=hhi)
@@ -169,7 +180,14 @@ target_col = "CARAVAN" if "CARAVAN" in df.columns else None
 binary_cols = [target_col] if target_col else []
 
 # Sociodemográficas = resto (excluyendo P*, A*, ordinales y la binaria)
-excluir = set(P_cols) | set(A_cols) | set(ordinal_small) | set(binary_cols)
+ordinal_domains = {
+    "MOSTYPE":  (1, 41),
+    "MOSHOOFD": (1, 10),
+    "MGEMLEEF": (1, 6),
+    "MGODRK":   (0, 9),
+    "PWAPART":  (0, 9)
+}
+excluir = set(P_cols) | set(A_cols) | set(ordinal_domains.keys()) | ({target_col} if target_col else set())
 sociodem_cols = [c for c in df.columns if c not in excluir]
 
 print(f"CARAVAN presente: {bool(target_col)} | P*: {len(P_cols)} | A*: {len(A_cols)} | "
@@ -218,22 +236,17 @@ for c in A_cols:
 # -----------------------------------------------------------------
 # 14) Ordinales pequeñas: mediana + clip a dominio + entero
 # -----------------------------------------------------------------
-ordinal_domains = {
-    "MOSTYPE":  (1, 41),
-    "MOSHOOFD": (1, 10),
-    "MGEMLEEF": (1, 6),
-    "MGODRK":   (0, 9),
-    "PWAPART":  (0, 9),
-}
+
 total_outliers_ordinal = 0
 for c in ordinal_small:
     lo, hi = ordinal_domains[c]
     if df[c].isna().any():
-        df[c] = df[c].fillna(df[c].median(skipna=True))
-    # Por consistencia medimos recortes sólo si había fuera de rango
+        modo = safe_mode(df[c])
+        df[c] = df[c].fillna(modo)
     before = df[c].copy()
-    df[c] = df[c].clip(lo, hi)
-    total_outliers_ordinal += int((~df[c].eq(before)).sum())
+    df[c] = df[c].clip(lo, hi)  # sin winsorize IQR
+    rec = int((~df[c].eq(before)).sum())
+    total_outliers_ordinal += rec
     df[c] = df[c].round().astype("int8")
 
 # -----------------------------------------------------------------
@@ -255,8 +268,14 @@ for c in M_rest:
     total_outliers_Mrest += rec
     # Mantener como float (proporción)
     df[c] = df[c].astype("float32")
-    df = df.apply(lambda col: np.floor(col) if np.issubdtype(col.dtype, np.number) else col)
-    
+# Floor o ceiling
+df = df.apply(
+    lambda col: np.where(
+        np.issubdtype(col.dtype, np.number),
+        np.where(col - np.floor(col) < 0.5, np.floor(col), np.ceil(col)),
+        col
+    )
+) 
 # -----------------------------------------------------------------
 # 16) Métricas de limpieza
 # -----------------------------------------------------------------

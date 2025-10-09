@@ -69,7 +69,7 @@ sociodem_cols = [c for c in df_limpio.columns if c not in excluir]
 # ------------------------
 
 def colapsar_categorias(series, prop_min=0.05, otra_cat=100):
-    # prop_min = 0.05 → mantener solo las categorias con participación ≥5% 
+    prop_min = 0.05 #→ mantener solo las categorias con participación ≥5% 
     share = series.value_counts(normalize=True)
     keep = share[share >= prop_min].index
     #print(f"  - Categorías a mantener (≥{prop_min*100:.1f}%): {list(keep)}")
