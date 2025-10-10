@@ -209,21 +209,30 @@ def one_hot_fit_transform(X_df, cat_cols):
     cols_in = [c for c in cat_cols if c in X_df.columns]
     if not cols_in:
         return pd.DataFrame(index=X_df.index), []
-    # prefix=None => usa el nombre de la columna como prefijo automáticamente
-    X_cat = pd.get_dummies(X_df[cols_in], prefix=None, drop_first=True, dtype="int8")
-    return X_cat, X_cat.columns.tolist()
 
-def one_hot_transform_with_cols(X_df, cat_cols, ohe_cols):
+    ohe = OneHotEncoder(handle_unknown='ignore', drop='first', sparse_output=False, dtype=np.int8)
+    X_cat = pd.DataFrame(
+        ohe.fit_transform(X_df[cols_in]),
+        columns=ohe.get_feature_names_out(cols_in),
+        index=X_df.index
+    )
+    return X_cat, ohe
+
+def one_hot_transform_with_cols(X_df, cat_cols, ohe):
     cols_in = [c for c in cat_cols if c in X_df.columns]
     if not cols_in:
-        return pd.DataFrame(index=X_df.index, columns=ohe_cols).fillna(0).astype("int8")
-    X_cat = pd.get_dummies(X_df[cols_in], prefix=None, drop_first=True, dtype="int8")
-    # Reindex para alinear con columnas vistas en TRAIN
-    X_cat = X_cat.reindex(columns=ohe_cols, fill_value=0)
+        return pd.DataFrame(index=X_df.index, columns=ohe.get_feature_names_out(cols_in)).fillna(0).astype("int8")
+
+    X_cat = pd.DataFrame(
+        ohe.transform(X_df[cols_in]),
+        columns=ohe.get_feature_names_out(cols_in),
+        index=X_df.index
+    )
     return X_cat
 
-X_train_cat, ohe_cols = one_hot_fit_transform(X_train, cat_cols)
-X_test_cat  = one_hot_transform_with_cols(X_test, cat_cols, ohe_cols)
+X_train_cat, ohe = one_hot_fit_transform(X_train, cat_cols)
+X_test_cat  = one_hot_transform_with_cols(X_test, cat_cols, ohe)
+ohe_cols = ohe.get_feature_names_out(cat_cols).tolist()
 
 print(f"[F3] dummies en train: {len(ohe_cols)} columnas")
 
@@ -309,5 +318,3 @@ if TARGET is not None:
     y_train_resampled.to_csv(os.path.join(OUT_DIR_DATA, "y_train_resampled.csv"), index=False)
 
 print("\n✅ Pipeline de preprocesamiento listo.")
-
-

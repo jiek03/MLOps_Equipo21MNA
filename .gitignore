@@ -212,3 +212,23 @@ results/*.pkl
 results/feature_order.json
 results/numeric_columns.json
 results/ohe_columns.json
+
+data/insurance_clean.csv
+data/X_test.csv
+data/y_test.csv
+data/X_train.csv
+data/y_train.csv
+
+graphs/categorias_colapsadas.png
+graphs/hist_contribuciones.png
+graphs/hist_polizas.png
+graphs/hist_sociodem.png
+graphs/hist_var_obj.png
+graphs/cm_counts.png
+graphs/cm_counts_Decision Tree.png
+graphs/cm_counts_Logistic Regression.png
+graphs/cm_counts_SVM.png
+graphs/cm_counts_KNN.png
+
+results/resultados_test.json
+results/resultados_train.json
