@@ -16,6 +16,7 @@ import pickle
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
+from imblearn.over_sampling import SMOTE,RandomOverSampler
 
 #import tempfile
 #from datetime import datetime
@@ -260,6 +261,22 @@ X_test_final = X_test_final.reindex(columns=X_train_final.columns, fill_value=0)
 
 print(f"[F5] X_train_final={X_train_final.shape}, X_test_final={X_test_final.shape}")
 
+
+# -----------------------------------------------------------------
+# 12) OVER SAMPLING con SMOTE (para balancear clases en TRAIN)
+# -----------------------------------------------------------------
+# - Aplicamos tecnica SMOTE para generar ejemplos sintéticos
+#   de la clase minoritaria (1) en el conjunto de entrenamiento.
+# - No tocamos el conjunto de prueba, que debe reflejar la distribución
+#   real de las clases.
+# -----------------------------------------------------------------
+
+X_train_resampled, y_train_resampled = SMOTE(random_state=42).fit_resample(X_train_final, y_train)
+
+
+print(f"[F6] X_train_resampled={X_train_resampled.shape},  y_train_resampled={y_train_resampled.shape}")
+print(f"y_train_resampled:1s={sum(y_train_resampled==1)}, y_train_resampled:0s={sum(y_train_resampled==0)}")
+
 # -----------------------------------------------------------------
 # 12) Guardar artefactos y datasets
 # -----------------------------------------------------------------
@@ -268,6 +285,7 @@ print(f"[F5] X_train_final={X_train_final.shape}, X_test_final={X_test_final.sha
 #   * columnas OHE y numéricas (json)
 #   * orden final de features (json)
 #   * datasets train/test (csv)
+#   * datasets resampleados (csv)
 # -----------------------------------------------------------------
 
 with open(os.path.join(OUT_DIR_RES, "scaler.pkl"), "wb") as f:
@@ -284,9 +302,11 @@ with open(os.path.join(OUT_DIR_RES, "feature_order.json"), "w", encoding="utf-8"
 
 X_train_final.to_csv(os.path.join(OUT_DIR_DATA, "X_train.csv"), index=False)
 X_test_final.to_csv(os.path.join(OUT_DIR_DATA, "X_test.csv"), index=False)
+X_train_resampled.to_csv(os.path.join(OUT_DIR_DATA, "X_train_resampled.csv"), index=False)
 if TARGET is not None:
     y_train.to_csv(os.path.join(OUT_DIR_DATA, "y_train.csv"), index=False)
     y_test.to_csv(os.path.join(OUT_DIR_DATA, "y_test.csv"), index=False)
+    y_train_resampled.to_csv(os.path.join(OUT_DIR_DATA, "y_train_resampled.csv"), index=False)
 
 print("\n✅ Pipeline de preprocesamiento listo.")
 
