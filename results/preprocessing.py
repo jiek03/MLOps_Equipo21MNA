@@ -291,10 +291,3 @@ if TARGET is not None:
 print("\n✅ Pipeline de preprocesamiento listo.")
 
 
-# ------------------------
-# Notamos que la variable 'PWAPART' contiene un colo valor, por lo cual no aporta información.
-# Se decide eliminarla en el siguiente paso de selección de variables.
-
-#df_limpio.drop(columns=['PWAPART'], inplace=True)
-
-# ------------------------
