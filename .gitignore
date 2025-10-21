@@ -217,19 +217,7 @@ data/processed/y_test.csv
 data/processed/X_train.csv
 data/processed/y_train.csv
 
-reports/figures/categorias_colapsadas.png
-reports/figures/hist_contribuciones.png
-reports/figures/hist_polizas.png
-reports/figures/hist_sociodem.png
-reports/figures/hist_var_obj.png
-reports/figures/cm_counts.png
-reports/figures/cm_counts_Decision Tree.png
-reports/figures/cm_counts_Logistic Regression.png
-reports/figures/cm_counts_SVM.png
-reports/figures/cm_counts_KNN.png
-reports/figures/cm_counts_Decision_Tree.png
-reports/figures/cm_counts_LogReg_(balanced).png
-reports/figures/cm_counts_SVM_(balanced).png
+reports/figures/*.png
 
 reports/resultados_test.json
 reports/resultados_train.json

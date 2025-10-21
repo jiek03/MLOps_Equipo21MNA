@@ -9,7 +9,7 @@
 # - Aplicar One-Hot Encoding a variables categóricas
 # - Escalar variables numéricas
 # - Dividir en train/test
-# - Aplicar oversampling (SMOTE)
+# - Aplicar oversampling (SMOTETomek)
 # - Guardar datasets procesados en data/processed/
 # - Guardar artefactos (scaler, columnas) en models/ y references/
 # =========================================================
@@ -22,7 +22,8 @@ import pickle
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-from imblearn.over_sampling import SMOTE
+from imblearn.combine import SMOTETomek
+
 
 
 # =========================================================
@@ -235,16 +236,16 @@ class DataPreprocessor:
     
     
     def aplicar_oversampling(self, random_state=42):
-        print("\n[SMOTE] Aplicando oversampling...")
-        
-        # Aplicar SMOTE solo en train
-        smote = SMOTE(random_state=random_state)
-        self.X_train_resampled, self.y_train_resampled = smote.fit_resample(
-            self.X_train_final, self.y_train
+        print("\n[SMOTE] Aplicando oversampling + limpieza de frontera (SMOTETomek)...")
+    
+        # Aplicar SMOTETomek en train
+        smote_tomek = SMOTETomek(random_state=random_state)
+        self.X_train_resampled, self.y_train_resampled = smote_tomek.fit_resample(
+        self.X_train_final, self.y_train
         )
-        
-        print(f"[SMOTE] X_train_resampled: {self.X_train_resampled.shape}")
-        print(f"[SMOTE] Clase 1: {sum(self.y_train_resampled == 1)} | Clase 0: {sum(self.y_train_resampled == 0)}")
+    
+        print(f"[SMOTETomek] X_train_resampled: {self.X_train_resampled.shape}")
+        print(f"[SMOTETomek] Clase 1: {sum(self.y_train_resampled == 1)} | Clase 0: {sum(self.y_train_resampled == 0)}")
     
     
     def guardar_artefactos(self):

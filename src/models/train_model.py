@@ -30,6 +30,9 @@ from sklearn.metrics import (
     average_precision_score, classification_report, confusion_matrix,
     precision_recall_curve, ConfusionMatrixDisplay
 )
+from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
+
 
 
 # =========================================================
@@ -140,9 +143,25 @@ class ModelTrainer:
                 class_weight='balanced',
                 random_state=42
             ),
-            'KNN': KNeighborsClassifier(n_neighbors=5),
-            'Decision Tree': DecisionTreeClassifier(max_depth=3, random_state=42)
+            'Random Forest (balanced)': RandomForestClassifier(
+                n_estimators=300,
+                max_depth=10,
+                class_weight='balanced_subsample',
+                random_state=42
+            ),
+            'XGBoost (balanced)': XGBClassifier(
+                n_estimators=300,
+                learning_rate=0.05,
+                max_depth=6,
+                subsample=0.8,
+                colsample_bytree=0.8,
+                scale_pos_weight=15,  
+                use_label_encoder=False,
+                eval_metric='logloss',
+                random_state=42
+            )
         }
+
         
         print(f"\n📋 Modelos balanceados definidos: {len(self.modelos)}")
     
@@ -215,14 +234,19 @@ class ModelTrainer:
         )
         
         # Re-entrenar LogReg balanced
-        log_bal = LogisticRegression(
-            penalty='l2',
-            C=0.1,
-            solver='lbfgs',
-            max_iter=4000,
-            class_weight='balanced',
+        # Re-entrenar con el mejor modelo detectado
+        log_bal = XGBClassifier(
+            n_estimators=300,
+            learning_rate=0.05,
+            max_depth=6,
+            subsample=0.8,
+            colsample_bytree=0.8,
+            scale_pos_weight=15,
+            use_label_encoder=False,
+            eval_metric='logloss',
             random_state=42
         )
+
         log_bal.fit(X_tr, y_tr)
         
         # Encontrar umbral óptimo en validación
