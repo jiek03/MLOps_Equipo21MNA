@@ -398,5 +398,5 @@ def main():
     # Ejecutar entrenamiento completo
     trainer.ejecutar_entrenamiento_completo()
     
-    if __name__ == "__main__":
-        main()
+if __name__ == "__main__":
+    main()
