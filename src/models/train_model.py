@@ -235,7 +235,7 @@ class ModelTrainer:
         
         # Re-entrenar LogReg balanced
         # Re-entrenar con el mejor modelo detectado
-        log_bal = XGBClassifier(
+        mejor_modelo = XGBClassifier(
             n_estimators=300,
             learning_rate=0.05,
             max_depth=6,
@@ -247,10 +247,10 @@ class ModelTrainer:
             random_state=42
         )
 
-        log_bal.fit(X_tr, y_tr)
+        mejor_modelo.fit(X_tr, y_tr)
         
         # Encontrar umbral óptimo en validación
-        probs_val = log_bal.predict_proba(X_val)[:, 1]
+        probs_val = mejor_modelo.predict_proba(X_val)[:, 1]
         p, r, thr = precision_recall_curve(y_val, probs_val)
         f1 = 2 * (p * r) / (p + r + 1e-12)
         idx = f1.argmax()
@@ -262,7 +262,7 @@ class ModelTrainer:
         print(f"     - F1: {f1[idx]:.2f}")
         
         # Evaluar en test con umbral ajustado
-        probs_test = log_bal.predict_proba(x_test)[:, 1]
+        probs_test = mejor_modelo.predict_proba(x_test)[:, 1]
         ap_test = average_precision_score(self.y_test, probs_test)
         y_pred = (probs_test >= self.mejor_umbral).astype(int)
         
@@ -281,7 +281,7 @@ class ModelTrainer:
         print(cm)
         
         # Guardar modelo ajustado
-        self.mejor_modelo = log_bal
+        self.mejor_modelo = mejor_modelo
     
     
     def guardar_resultados(self):
