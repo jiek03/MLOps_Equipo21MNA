@@ -12,7 +12,8 @@
 # - Guardar gráficas en reports/figures/
 # =========================================================
 
-import os
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 import json
 import numpy as np
 import pandas as pd

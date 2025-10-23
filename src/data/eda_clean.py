@@ -13,7 +13,8 @@
 # - Guardar dataset limpio y métricas básicas para el reporte.
 # =========================================================
 
-import os
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 import json
 import numpy as np
 import pandas as pd

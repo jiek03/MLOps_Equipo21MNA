@@ -2,8 +2,8 @@ from setuptools import find_packages, setup
 
 # Leer dependencias desde requirements.txt
 def read_requirements():
-    with open("requirements.txt") as f:
-        return f.read().splitlines()
+    with open("requirements.txt", encoding="utf-8") as f:
+        return [line.strip() for line in f if line.strip() and not line.startswith("#")]
 
 setup(
     name="equipo21mna_coil2000",
@@ -15,12 +15,12 @@ setup(
     package_dir={"": "src"},
     include_package_data=True,
     install_requires=read_requirements(),
-    python_requires=">=3.8",  
+    python_requires=">=3.8",
     entry_points={
         "console_scripts": [
-            "eda_clean=src.data.eda_clean:main",
-            "preprocessing=src.features.preprocessing:main",
-            "train_model=src.models.train_model:main",
+            "eda_clean=data.eda_clean:main",
+            "preprocessing=features.preprocessing:main",
+            "train_model=models.train_model:main",
         ],
     },
 )
