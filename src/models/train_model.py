@@ -32,8 +32,11 @@ from sklearn.metrics import (
 )
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
+import optuna
+from sklearn.model_selection import cross_val_score
 
-
+import mlflow
+import mlflow.xgboost
 
 # =========================================================
 # CLASE PRINCIPAL: ModelTrainer
@@ -49,6 +52,10 @@ class ModelTrainer:
         # Crear directorios si no existen
         os.makedirs(self.output_dir_reports, exist_ok=True)
         os.makedirs(self.output_dir_figures, exist_ok=True)
+        
+        # Configuración de MLflow local
+        mlflow.set_tracking_uri("file:./mlruns")  
+        mlflow.set_experiment("XGBoost_Optuna_COIL2000") 
         
         # Atributos para almacenar datos
         self.X_train = None
@@ -217,6 +224,86 @@ class ModelTrainer:
         
         print(f"  ✅ Matrices guardadas en: {self.output_dir_figures}")
     
+    def optimizar_modelo_optuna(self, n_trials=30):
+        print("\n🔎 Iniciando optimización de hiperparámetros con Optuna...")
+
+        def objective(trial):
+            # Definir espacio de búsqueda a partir del mejor modelo actual
+            params = {
+                'n_estimators': trial.suggest_int('n_estimators', 200, 600),
+                'learning_rate': trial.suggest_float('learning_rate', 0.01, 0.1, log=True),
+                'max_depth': trial.suggest_int('max_depth', 3, 10),
+                'subsample': trial.suggest_float('subsample', 0.6, 1.0),
+                'colsample_bytree': trial.suggest_float('colsample_bytree', 0.6, 1.0),
+                'scale_pos_weight': trial.suggest_int('scale_pos_weight', 10, 25),
+                'eval_metric': 'logloss',
+                'use_label_encoder': False,
+                'random_state': 42
+            }
+
+            # Modelo con los parámetros actuales
+            model = XGBClassifier(**params)
+
+            # Validación cruzada (3-fold CV) usando F1 como métrica
+            f1 = cross_val_score(model, self.X_train, self.y_train, scoring='f1', cv=3, n_jobs=-1).mean()
+            return f1
+
+        # Crear el estudio de optimización
+        study = optuna.create_study(direction='maximize')
+        study.optimize(objective, n_trials=n_trials)
+
+        # Mostrar mejores resultados
+        print("\n✅ Optimización completada.")
+        print(f"🏆 Mejor F1 promedio en validación: {study.best_value:.4f}")
+        print("📊 Mejor combinación encontrada:")
+        for key, val in study.best_params.items():
+            print(f"   - {key}: {val}")
+
+        # Entrenar el mejor modelo final con los parámetros óptimos
+        best_params = study.best_params
+        best_params.update({
+            'eval_metric': 'logloss',
+            'use_label_encoder': False,
+            'random_state': 42
+        })
+
+        mejor_modelo = XGBClassifier(**best_params)
+        mejor_modelo.fit(self.X_train, self.y_train)
+        self.mejor_modelo = mejor_modelo
+        self.mejor_umbral = None  
+        
+        # =========================================================
+        # REGISTRO EN MLFLOW
+        # =========================================================
+        with mlflow.start_run(run_name="XGBoost_Optuna_Best"):
+            mlflow.log_params(study.best_params)
+
+            y_prob = mejor_modelo.predict_proba(self.X_test)[:, 1]
+            y_pred = (y_prob >= 0.5).astype(int)
+            f1 = f1_score(self.y_test, y_pred)
+            recall = recall_score(self.y_test, y_pred)
+            precision = precision_score(self.y_test, y_pred)
+            auc = roc_auc_score(self.y_test, y_prob)
+    
+            mlflow.log_metric("f1_test", f1)
+            mlflow.log_metric("recall_test", recall)
+            mlflow.log_metric("precision_test", precision)
+            mlflow.log_metric("roc_auc_test", auc)
+
+            mlflow.xgboost.log_model(mejor_modelo, artifact_path="xgboost_model")
+
+            if self.mejor_umbral is not None:
+                mlflow.log_param("optimal_threshold", self.mejor_umbral)
+        
+        print("✅ Modelo y resultados registrados en MLflow.")
+        mlflow.end_run()
+        # =========================================================
+        
+        # Guardar resultados del estudio
+        study.trials_dataframe().to_csv(os.path.join(self.output_dir_reports, 'optuna_trials.csv'), index=False)
+        print(f"💾 Resultados de búsqueda guardados en: {self.output_dir_reports}/optuna_trials.csv")
+
+        return self.mejor_modelo
     
     def ajustar_umbral_f1(self):
         print("\n🎯 Ajustando umbral para maximizar F1...")
@@ -233,19 +320,8 @@ class ModelTrainer:
             random_state=42
         )
         
-        # Re-entrenar LogReg balanced
         # Re-entrenar con el mejor modelo detectado
-        mejor_modelo = XGBClassifier(
-            n_estimators=300,
-            learning_rate=0.05,
-            max_depth=6,
-            subsample=0.8,
-            colsample_bytree=0.8,
-            scale_pos_weight=15,
-            use_label_encoder=False,
-            eval_metric='logloss',
-            random_state=42
-        )
+        mejor_modelo = self.optimizar_modelo_optuna(n_trials=30)
 
         mejor_modelo.fit(X_tr, y_tr)
         

@@ -221,3 +221,7 @@ reports/figures/*.png
 
 reports/resultados_test.json
 reports/resultados_train.json
+reports/*.csv
+
+mlruns/
+.secret-stack
