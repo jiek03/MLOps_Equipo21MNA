@@ -20,11 +20,15 @@ import json
 import numpy as np
 import pandas as pd
 import pickle
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.preprocessing import StandardScaler, OneHotEncoder, MinMaxScaler
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 from imblearn.combine import SMOTETomek
+from imblearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
 
+from imblearn.pipeline import Pipeline as ImbPipeline
 
 
 # =========================================================
@@ -65,6 +69,19 @@ class DataPreprocessor:
         self.scaler = None
         self.ohe = None
         self.ohe_cols = []
+
+        #transformer preprocesamiento
+        self.numericas_pipe=None
+        self.numericas_pipe_nombres = []
+        self.categoricas_pipe = None
+        self.categoricas_pipe_nombres = []
+        self.columnas_transformer = None
+        self.X_train_transformed=[]
+        self.X_test_transformed=[]
+        self.pipeline_preprocesamiento=None
+
+        #oversampling
+        self.metodo_uo=None
         
         # Datasets resultantes
         self.X_train = None
@@ -173,8 +190,49 @@ class DataPreprocessor:
         print(f"\n[Split] X_train: {self.X_train.shape}, X_test: {self.X_test.shape}")
         if self.y_train is not None:
             print(f"[Split] y_train positivos: {int(self.y_train.sum())} | y_test positivos: {int(self.y_test.sum())}")
-    
-    
+
+
+    def inicializar_transformer(self):
+        # ************* Inlcuye aquí tu código:*****************************
+
+        # Variables numéricas:
+        self.numericas_pipe = Pipeline(steps=[('impMediana', SimpleImputer(strategy='median')),
+                                         ('escalaNum', StandardScaler())])
+        self.numericas_pipe_nombres = self.num_cols
+
+        # Variables categóricas:
+        self.categoricas_pipe = Pipeline(steps=[('impModa', SimpleImputer(strategy='most_frequent')),
+                                         ('ohe', OneHotEncoder( handle_unknown='ignore',
+                                                                 drop='first',
+                                                                sparse_output=False,
+                                                                dtype=np.int8))])
+        self.categoricas_pipe_nombres = self.cat_cols
+
+
+
+        # Conjuntas las transformaciones de todo tipo de variable y
+        # deja sin procesar aquellas que hayas decidido no transformar:
+
+        self.columnas_transformer = ColumnTransformer(transformers=[('numpipe', self.numericas_pipe, self.numericas_pipe_nombres),
+                                                              ('catpipe', self.categoricas_pipe, self.categoricas_pipe_nombres)],
+                                                remainder='passthrough')
+
+    #Se entrena el pipelice de preprocesar solo con el set de entrenamiento para evitar data leakage
+    def entrenar_transformer(self):
+        print("\n[Transformer X Train] ...")
+        self.columnas_transformer.fit(self.X_train)
+        feature_names = self.columnas_transformer.get_feature_names_out()
+        print(feature_names)
+        #print(self.columnas_transformer.fit(self.X_train))
+
+    #Se transforman las variables usando el pipeline de preprocesamiento
+    def transformar_variables(self):
+        self.X_train_transformed = self.columnas_transformer.transform(self.X_train)
+        self.X_test_transformed = self.columnas_transformer.transform(self.X_test)
+
+        #print(X_train_transformed)
+        #print(X_test_transformed)
+
     def aplicar_one_hot_encoding(self):
         print("\n[One-Hot Encoding] Codificando variables categóricas...")
         
@@ -236,19 +294,29 @@ class DataPreprocessor:
         print(f"[Ensamble] X_train_final: {self.X_train_final.shape}, X_test_final: {self.X_test_final.shape}")
     
     
-    def aplicar_oversampling(self, random_state=42):
+    def definir_oversampling(self, random_state=42):
         print("\n[SMOTE] Aplicando oversampling + limpieza de frontera (SMOTETomek)...")
     
         # Aplicar SMOTETomek en train
-        smote_tomek = SMOTETomek(random_state=random_state)
-        self.X_train_resampled, self.y_train_resampled = smote_tomek.fit_resample(
+        self.metodo_uo = SMOTETomek(random_state=random_state)
+        self.X_train_resampled, self.y_train_resampled = self.metodo_uo.fit_resample(
         self.X_train_final, self.y_train
         )
-    
+        print(self.X_train_final)
         print(f"[SMOTETomek] X_train_resampled: {self.X_train_resampled.shape}")
         print(f"[SMOTETomek] Clase 1: {sum(self.y_train_resampled == 1)} | Clase 0: {sum(self.y_train_resampled == 0)}")
-    
-    
+
+    def definir_pipeline_preprocesamiento(self):
+        self.pipeline_preprocesamiento = ImbPipeline(steps=[
+            ('preprocesamiento', self.columnas_transformer),
+            ('sub_sobre_muestreo', self.metodo_uo),
+            #('model', modelo)
+        ])
+
+    def ejecutar_pipeline_preprocesamiento(self):
+        print("Ejecutando pipeline preprocesamiento...Alex")
+        print( type(self.columnas_transformer.fit_transform(self.X_train)))
+
     def guardar_artefactos(self):
         print("\n💾 Guardando artefactos...")
         
@@ -329,9 +397,14 @@ class DataPreprocessor:
         self.aplicar_one_hot_encoding()
         self.escalar_variables_numericas()
         self.ensamblar_datasets_finales()
-        
+        self.inicializar_transformer()
+        self.entrenar_transformer()
+        #self.definir_oversampling()
+        self.definir_pipeline_preprocesamiento()
+        self.ejecutar_pipeline_preprocesamiento()
+
         # 6. Oversampling
-        self.aplicar_oversampling(random_state=42)
+        self.definir_oversampling(random_state=42)
         
         # 7. Guardar resultados
         self.guardar_artefactos()
