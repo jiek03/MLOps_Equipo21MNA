@@ -1,0 +1,30 @@
+# ===============================
+# Archivo .gitattributes
+# Control de codificación, saltos de línea y formato
+# ===============================
+
+# Fuerza UTF-8 en todos los archivos de texto
+*.py  text eol=lf working-tree-encoding=UTF-8
+*.txt text eol=lf working-tree-encoding=UTF-8
+*.csv text eol=lf working-tree-encoding=UTF-8
+*.md  text eol=lf working-tree-encoding=UTF-8
+*.json text eol=lf working-tree-encoding=UTF-8
+*.yml text eol=lf working-tree-encoding=UTF-8
+
+# Normaliza finales de línea (LF en todos los sistemas)
+* text=auto eol=lf
+
+# Mantén binarios tal cual
+*.pkl binary
+*.pkl.gz binary
+*.png binary
+*.jpg binary
+*.pdf binary
+*.ipynb binary
+
+# Evita conflictos en notebooks
+*.ipynb merge=union
+
+# Asegura que los CSV y notebooks se guarden en UTF-8 
+*.csv working-tree-encoding=UTF-8
+*.ipynb working-tree-encoding=UTF-8
