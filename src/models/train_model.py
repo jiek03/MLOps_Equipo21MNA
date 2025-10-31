@@ -54,9 +54,6 @@ class ModelTrainer:
         os.makedirs(self.output_dir_reports, exist_ok=True)
         os.makedirs(self.output_dir_figures, exist_ok=True)
         
-        # Configuración de MLflow local
-        mlflow.set_tracking_uri("file:./mlruns")  
-        mlflow.set_experiment("XGBoost_Optuna_COIL2000") 
         
         # Atributos para almacenar datos
         self.X_train = None
@@ -117,6 +114,10 @@ class ModelTrainer:
     
     
     def entrenar_y_evaluar_baseline(self):
+        # Configuración de MLflow local
+        mlflow.set_tracking_uri("file:./mlruns")  
+        mlflow.set_experiment("Modelos_baseline_Optuna_COIL2000")
+
         print("\n🔄 Entrenando modelos baseline...")
         
         # Convertir a arrays numpy
@@ -127,6 +128,26 @@ class ModelTrainer:
         self.resultados_train, self.resultados_test, self.modelos_entrenados = self._evalua_modelos(
             self.modelos, x_train, self.y_train, x_test, self.y_test
         )
+
+        for model in self.modelos_entrenados.keys():
+            with mlflow.start_run(run_name=f"{model}_baseline"):
+                mlflow.log_params(self.modelos_entrenados[model].get_params())
+                
+                y_prob = self.modelos_entrenados[model].predict_proba(x_test)[:, 1]
+                y_pred = (y_prob >= 0.5).astype(int)
+                f1 = f1_score(self.y_test, y_pred)
+                recall = recall_score(self.y_test, y_pred)
+                precision = precision_score(self.y_test, y_pred)
+                auc = roc_auc_score(self.y_test, y_prob)
+        
+                mlflow.log_metric("f1_test", f1)
+                mlflow.log_metric("recall_test", recall)
+                mlflow.log_metric("precision_test", precision)
+                mlflow.log_metric("roc_auc_test", auc)
+
+                mlflow.sklearn.log_model(self.modelos_entrenados[model], artifact_path="sklearn_model_baseline")
+            mlflow.end_run()
+            print(f"✅ Modelo '{model}' registrado en MLflow.")
         
         print("\n📊 Resultados en entrenamiento:")
         print(self.resultados_train.to_string(index=False))
@@ -175,6 +196,9 @@ class ModelTrainer:
     
     
     def entrenar_y_evaluar_balanceados(self):
+        # Configuración de MLflow local
+        mlflow.set_tracking_uri("file:./mlruns")  
+        mlflow.set_experiment("Modelos_balanceados_Optuna_COIL2000")
         print("\n🔄 Entrenando modelos con class_weight='balanced'...")
         
         # Convertir a arrays numpy
@@ -185,6 +209,27 @@ class ModelTrainer:
         self.resultados_train, self.resultados_test, self.modelos_entrenados = self._evalua_modelos(
             self.modelos, x_train, self.y_train, x_test, self.y_test
         )
+
+        for model in self.modelos_entrenados.keys():
+            with mlflow.start_run(run_name=f"{model}_balanced"):
+                mlflow.log_params(self.modelos_entrenados[model].get_params())
+                
+                y_prob = self.modelos_entrenados[model].predict_proba(x_test)[:, 1]
+                y_pred = (y_prob >= 0.5).astype(int)
+                f1 = f1_score(self.y_test, y_pred)
+                recall = recall_score(self.y_test, y_pred)
+                precision = precision_score(self.y_test, y_pred)
+                auc = roc_auc_score(self.y_test, y_prob)
+        
+                mlflow.log_metric("f1_test", f1)
+                mlflow.log_metric("recall_test", recall)
+                mlflow.log_metric("precision_test", precision)
+                mlflow.log_metric("roc_auc_test", auc)
+
+                mlflow.sklearn.log_model(self.modelos_entrenados[model], artifact_path="sklearn_model_balanced")
+            mlflow.end_run()
+            print(f"✅ Modelo '{model}' registrado en MLflow.")
+            
         
         print("\n📊 Resultados en entrenamiento (balanced):")
         print(self.resultados_train.to_string(index=False))
@@ -226,6 +271,10 @@ class ModelTrainer:
         print(f"  ✅ Matrices guardadas en: {self.output_dir_figures}")
     
     def optimizar_modelo_optuna(self, n_trials=30):
+        # Configuración de MLflow local
+        mlflow.set_tracking_uri("file:./mlruns")  
+        mlflow.set_experiment("XGBoost_Optuna_COIL2000") 
+        
         print("\n🔎 Iniciando optimización de hiperparámetros con Optuna...")
 
         def objective(trial):
