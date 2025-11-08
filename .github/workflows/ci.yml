@@ -26,4 +26,4 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Run tests (no coverage)
-        run: pytest -p no:cov   # <-- desactiva pytest-cov aunque exista en pytest.ini
+        run: pytest -v -p no:cov   # <-- desactiva pytest-cov aunque exista en pytest.ini
