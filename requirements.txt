@@ -89,6 +89,7 @@ pydot==4.0.1
 PyDrive2==1.21.3
 pygit2==1.18.2
 Pygments==2.19.2
+pytest==8.4.2
 pygtrie==2.5.0
 pyOpenSSL==24.2.1
 pyparsing==3.2.5
