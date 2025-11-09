@@ -10,17 +10,17 @@ from pathlib import Path
 def tiny_csv_and_dict(tmp_path):
     # CSV crudo sin encabezados (header=None)
     df = pd.DataFrame({
-        0: [0.1, 0.2, 0.0, 0.3,0.5],   # CARAVAN (binario en texto)
-        1: [1, 0, 2, 1, 3],# P1 (num + un no convertible)
-        2: [1, 0, 2, 1, 3],   # MOSTYPE (categórica)
-        3: [1,2,3,4,5],     # Otra columna numérica
+        0: [0.1, 0.2, 0.0, 0.3,0.5],
+        1: [1, 0, 2, 1, 3],
+        2: [1, 0, 2, 1, 3],   
+        3: [1,2,3,4,5],  
         4: [10, 20, 10, 30,5],
         5: [0, 0, 1, 0, 1]
     })
     
     raw = tmp_path / "raw.csv"
     df.to_csv(raw, header=False, index=False)
-
+    # Diccionario de columnas auxiliar para probar funciones
     dict_tmp = {0: "P1", 1: "A1", 2: "MOSTYPE",3: "M_TEST",4:"OTRA_NUM",5:"CARAVAN"}
     dct = tmp_path / "dict.pkl"
     with open(dct, "wb") as f:
