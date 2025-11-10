@@ -2,72 +2,24 @@
   "baseline": {
     "train": [
       {
-        "model": "XGBoost (balanced)",
-        "accuracy": 97.03,
-        "precision": 67.88,
+        "model": "XGBClassifier",
+        "accuracy": 99.96,
+        "precision": 99.33,
         "recall": 100.0,
-        "f1": 80.87,
-        "roc_auc": 99.92
-      },
-      {
-        "model": "SVM (balanced)",
-        "accuracy": 86.94,
-        "precision": 31.87,
-        "recall": 94.97,
-        "f1": 47.72,
-        "roc_auc": 96.66
-      },
-      {
-        "model": "Random Forest (balanced)",
-        "accuracy": 94.57,
-        "precision": 53.88,
-        "recall": 93.29,
-        "f1": 68.3,
-        "roc_auc": 97.86
-      },
-      {
-        "model": "LogReg (balanced)",
-        "accuracy": 70.37,
-        "precision": 14.29,
-        "recall": 74.5,
-        "f1": 23.99,
-        "roc_auc": 79.34
+        "f1": 99.67,
+        "roc_auc": 100.0
       }
     ],
     "test": [
       {
-        "model": "XGBoost (balanced)",
-        "accuracy": 89.06,
-        "precision": 17.65,
-        "recall": 20.0,
-        "f1": 18.75,
-        "roc_auc": 70.38
-      },
-      {
-        "model": "SVM (balanced)",
-        "accuracy": 83.0,
-        "precision": 16.4,
-        "recall": 41.33,
-        "f1": 23.48,
-        "roc_auc": 69.35
-      },
-      {
-        "model": "Random Forest (balanced)",
-        "accuracy": 89.81,
-        "precision": 21.95,
-        "recall": 24.0,
-        "f1": 22.93,
-        "roc_auc": 73.92
-      },
-      {
-        "model": "LogReg (balanced)",
-        "accuracy": 68.35,
-        "precision": 11.7,
-        "recall": 61.33,
-        "f1": 19.66,
-        "roc_auc": 70.56
+        "model": "XGBClassifier",
+        "accuracy": 92.0,
+        "precision": 20.59,
+        "recall": 9.33,
+        "f1": 12.84,
+        "roc_auc": 67.19
       }
     ]
   },
-  "mejor_umbral": 0.4102742671966553
+  "mejor_umbral": null
 }
