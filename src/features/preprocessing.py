@@ -40,19 +40,20 @@ class DataPreprocessor:
     def __init__(self, src_path, output_dir_processed, output_dir_reports,
                  output_dir_figures, output_dir_models, output_dir_references):
         # Atributos de rutas
-        self.src_path = src_path
-        self.output_dir_processed = output_dir_processed
-        self.output_dir_reports = output_dir_reports
-        self.output_dir_figures = output_dir_figures
-        self.output_dir_models = output_dir_models
-        self.output_dir_references = output_dir_references
+        if src_path is not None:
+            self.src_path = src_path
+            self.output_dir_processed = output_dir_processed
+            self.output_dir_reports = output_dir_reports
+            self.output_dir_figures = output_dir_figures
+            self.output_dir_models = output_dir_models
+            self.output_dir_references = output_dir_references
 
-        # Crear directorios si no existen
-        os.makedirs(self.output_dir_processed, exist_ok=True)
-        os.makedirs(self.output_dir_reports, exist_ok=True)
-        os.makedirs(self.output_dir_figures, exist_ok=True)
-        os.makedirs(self.output_dir_models, exist_ok=True)
-        os.makedirs(self.output_dir_references, exist_ok=True)
+            # Crear directorios si no existen
+            os.makedirs(self.output_dir_processed, exist_ok=True)
+            os.makedirs(self.output_dir_reports, exist_ok=True)
+            os.makedirs(self.output_dir_figures, exist_ok=True)
+            os.makedirs(self.output_dir_models, exist_ok=True)
+            os.makedirs(self.output_dir_references, exist_ok=True)
 
         # Atributos para almacenar datos
         self.df = None
@@ -76,7 +77,7 @@ class DataPreprocessor:
         self.numericas_pipe_nombres = []
         self.categoricas_pipe = None
         self.categoricas_pipe_nombres = []
-        self.columnas_transformer = None
+        self.transformer = None
         self.X_train_transformed = []
         self.X_test_transformed = []
         self.X_train_transformed_df = None
@@ -207,7 +208,7 @@ class DataPreprocessor:
         # Conjuntas las transformaciones de todo tipo de variable y
         # deja sin procesar aquellas que hayas decidido no transformar:
 
-        self.columnas_transformer = ColumnTransformer(
+        self.transformer = ColumnTransformer(
             transformers=[('numpipe', self.numericas_pipe, self.numericas_pipe_nombres),
                           ('catpipe', self.categoricas_pipe, self.categoricas_pipe_nombres)],
             remainder='passthrough')
@@ -215,20 +216,20 @@ class DataPreprocessor:
     # Se entrena el pipelice de preprocesar solo con el set de entrenamiento para evitar data leakage
     def entrenar_transformer(self):
         print("\n[Transformer X Train] ...")
-        self.columnas_transformer.fit(self.X_train)
+        self.transformer.fit(self.X_train)
 
     # Se transforman las variables usando el pipeline de preprocesamiento
     def transformar_variables(self):
-        self.X_train_transformed = self.columnas_transformer.transform(self.X_train)
-        self.X_test_transformed = self.columnas_transformer.transform(self.X_test)
+        self.X_train_transformed = self.transformer.transform(self.X_train)
+        self.X_test_transformed = self.transformer.transform(self.X_test)
 
         print(
             f"[Transformer] X_train_transformed: {self.X_train_transformed.shape}, X_test_transformed: {self.X_test_transformed.shape}")
 
         self.X_train_transformed_df = pd.DataFrame(self.X_train_transformed,
-                                                   columns=self.columnas_transformer.get_feature_names_out())
+                                                   columns=self.transformer.get_feature_names_out())
         self.X_test_transformed_df = pd.DataFrame(self.X_test_transformed,
-                                                  columns=self.columnas_transformer.get_feature_names_out())
+                                                  columns=self.transformer.get_feature_names_out())
         self.X_test_final = self.X_test_transformed_df
 
     def ejecutar_oversampling(self, random_state=42):
