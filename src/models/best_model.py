@@ -67,7 +67,7 @@ class ModelTrainer:
         self.resultados_train = None
         self.resultados_test = None
 
-        self.src_path = "C:\\Users\\Alejandro Mondragon\\PyCharmMiscProject\\src\\data\\data\\interim\\insurance_clean.csv"
+        self.src_path = os.path.join("data", "interim", "insurance_clean.csv")
 
         self.preprocess=None
 
@@ -113,10 +113,10 @@ class ModelTrainer:
         self.mejor_modelo = mejor_modelo
         self.mejor_umbral = None
 
-        SRC_PATH = "C:\\Users\\Alejandro Mondragon\\PyCharmMiscProject\\src\\data\\data\\interim\\insurance_clean.csv"
-        OUTPUT_DIR_PROCESSED = "data/processed"
+        SRC_PATH = os.path.join("data", "interim", "insurance_clean.csv")
+        OUTPUT_DIR_PROCESSED = os.path.join("data", "processed")
         OUTPUT_DIR_REPORTS = "reports"
-        OUTPUT_DIR_FIGURES = "reports/figures"
+        OUTPUT_DIR_FIGURES = os.path.join("reports", "figures")
         OUTPUT_DIR_MODELS = "models"
         OUTPUT_DIR_REFERENCES = "references"
 
@@ -299,12 +299,12 @@ class ModelTrainer:
 # =========================================================
 def main():
     # Definir rutas según estructura de Cookiecutter
-    DATA_DIR = "C:\\Users\\Alejandro Mondragon\\PyCharmMiscProject\\src\\features\\data\\processed"
+    DATA_DIR = os.path.join("data", "processed")
 
 
     # Definir rutas según estructura de Cookiecutter
-    SRC_PATH = "C:\\Users\\Alejandro Mondragon\\PyCharmMiscProject\\src\\data\\data\\interim\\insurance_clean.csv"
-    OUTPUT_DIR_PROCESSED = "data/processed"
+    SRC_PATH = os.path.join("data", "interim", "insurance_clean.csv")
+    OUTPUT_DIR_PROCESSED = os.path.join("data", "processed")
     OUTPUT_DIR_REPORTS = "reports"
     OUTPUT_DIR_FIGURES = "reports/figures"
     OUTPUT_DIR_MODELS = "models"
