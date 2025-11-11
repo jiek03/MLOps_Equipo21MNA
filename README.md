@@ -258,6 +258,10 @@ Project Organization
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
 
 --------
+## FastAPI
+
+El artefacto `pipeline.joblib` contiene tanto las transformaciones de datos como el clasificador final.
+Este modelo fue registrado como la versión 1 (`src/models/pipeline.joblib`) en el flujo de trabajo MLOps y es utilizado por el contenedor `coil-2000:1.0` para ofrecer predicciones mediante la API REST.
 
 ## 🐳 Contenedor Docker
 
