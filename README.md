@@ -257,3 +257,50 @@ Project Organization
 
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
 
+--------
+
+## 🐳 Contenedor Docker
+
+**Repositorio de imagen:** [https://hub.docker.com/r/jiek03/coil-2000](https://hub.docker.com/r/jiek03/coil-2000)
+
+### Versiones publicadas
+| Tag | Descripción | Fecha |
+|-----|--------------|--------|
+| `1.0` | Versión inicial del servicio FastAPI para el dataset COIL 2000. | 11/11/2025 |
+| `latest` | Alias de la versión estable más reciente. | 11/11/2025 |
+
+---
+
+### 🧩 Ejecución local
+Cualquier usuario puede ejecutar el contenedor sin necesidad de credenciales, solo debe tener **Docker Desktop instalado**.
+
+```bash
+# Descargar la imagen desde Docker Hub
+docker pull jiek03/coil-2000:1.0
+
+# Ejecutar el servicio FastAPI
+docker run -p 8000:8000 jiek03/coil-2000:1.0
+
+Luego abre en el navegador:
+
+http://localhost:8000/docs
+
+### 👥 Otros usuarios y etiquetas
+
+Cualquier persona puede crear su propia copia y publicarla en su cuenta de Docker Hub:
+
+# Crear una nueva etiqueta con su usuario
+docker tag jiek03/coil-2000:1.0 tu_usuario/coil-2000:1.0
+
+# Subir la imagen a su propio repositorio
+docker push tu_usuario/coil-2000:1.0
+
+
+# Para actualizar versiones dentro del mismo repositorio:
+
+docker tag jiek03/coil-2000:1.0 jiek03/coil-2000:1.1
+docker push jiek03/coil-2000:1.1
+
+
+El alias latest puede actualizarse para apuntar a la versión más reciente.
+
