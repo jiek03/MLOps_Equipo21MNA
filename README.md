@@ -280,10 +280,10 @@ Cualquier usuario puede ejecutar el contenedor sin necesidad de credenciales, so
 
 ```bash
 # Descargar la imagen desde Docker Hub
-docker pull jiek03/coil-2000:1.0
+docker pull jiek03/coil-2000:tagname
 
 # Ejecutar el servicio FastAPI
-docker run -p 8000:8000 jiek03/coil-2000:1.0
+docker run -p 8000:8000 jiek03/coil-2000:tagname
 
 Luego abre en el navegador:
 
@@ -294,16 +294,16 @@ http://localhost:8000/docs
 Cualquier persona puede crear su propia copia y publicarla en su cuenta de Docker Hub:
 
 # Crear una nueva etiqueta con su usuario
-docker tag jiek03/coil-2000:1.0 tu_usuario/coil-2000:1.0
+docker tag jiek03/coil-2000:tagname user/coil-2000:tagname
 
 # Subir la imagen a su propio repositorio
-docker push tu_usuario/coil-2000:1.0
+docker push user/coil-2000:tagname
 
 
 # Para actualizar versiones dentro del mismo repositorio:
 
-docker tag jiek03/coil-2000:1.0 jiek03/coil-2000:1.1
-docker push jiek03/coil-2000:1.1
+docker tag jiek03/coil-2000:tagname jiek03/coil-2000:latest
+docker push jiek03/coil-2000:latest
 
 
 El alias latest puede actualizarse para apuntar a la versión más reciente.
