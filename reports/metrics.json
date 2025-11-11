@@ -3,21 +3,21 @@
     "train": [
       {
         "model": "XGBClassifier",
-        "accuracy": 99.96,
-        "precision": 99.33,
-        "recall": 100.0,
-        "f1": 99.67,
-        "roc_auc": 100.0
+        "accuracy": 93.1,
+        "precision": 54.07,
+        "recall": 99.23,
+        "f1": 70.0,
+        "roc_auc": 99.43
       }
     ],
     "test": [
       {
         "model": "XGBClassifier",
-        "accuracy": 92.0,
-        "precision": 20.59,
-        "recall": 9.33,
-        "f1": 12.84,
-        "roc_auc": 67.19
+        "accuracy": 86.87,
+        "precision": 17.07,
+        "recall": 28.0,
+        "f1": 21.21,
+        "roc_auc": 72.79
       }
     ]
   },

@@ -38,7 +38,7 @@ from sklearn.model_selection import cross_val_score
 import mlflow
 import mlflow.xgboost
 import joblib
-import features.preprocessing as preprocessing
+from src.features import preprocessing
 from imblearn.combine import SMOTETomek
 # =========================================================
 # CLASE PRINCIPAL: ModelTrainer
@@ -99,12 +99,12 @@ class ModelTrainer:
     def definir_modelo(self):
 
         mejor_modelo = XGBClassifier(
-                n_estimators=375,
-                learning_rate=0.07146508624855594,
-                max_depth=9,
-                subsample=0.7228842191935627,
-                colsample_bytree=0.7228842191935627,
-                scale_pos_weight=13,
+                n_estimators=200,
+                learning_rate=0.05,
+                max_depth=5,
+                subsample=0.8,
+                colsample_bytree=0.8,
+                scale_pos_weight=15,
                 use_label_encoder=False,
                 eval_metric='logloss',
                 random_state=42
