@@ -213,44 +213,56 @@ Pipeline de ML COIL 2000
 Project Organization
 ------------
 
-    ├── LICENSE
-    ├── README.md          <- The top-level README for developers using this project.
-    ├── data
-    │   ├── external       <- Data from third party sources.
-    │   ├── interim        <- Intermediate data that has been transformed.
-    │   ├── processed      <- The final, canonical data sets for modeling.
-    │   └── raw            <- The original, immutable data dump.
-    │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
-    │
-    ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-    │                         the creator's initials, and a short `-` delimited description, e.g.
-    │                         `1.0-jqp-initial-data-exploration`.
-    │
-    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-    │
-    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-    │   └── figures        <- Generated graphics and figures to be used in reporting
-    │
-    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-    │                         generated with `pip freeze > requirements.txt`
-    │
-    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
-    ├── src                <- Source code for use in this project.
-    │   ├── __init__.py    <- Makes src a Python module
-    │   │
-    │   ├── data           <- Scripts to download or generate data
-    │   │   └── eda_clean.py
-    │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── preprocessing.py
-    │   │
-    │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions
-    │   │   ├── predict_model.py
-    │   │   └── train_model.py
-    │
-    └── tox.ini            <- tox file with settings for running tox; see tox.readthedocs.io
+├── LICENSE
+├── README.md               <- The top-level README for developers using this project.
+│
+├── data
+│   ├── external            <- Data from third party sources.
+│   ├── interim             <- Intermediate data that has been transformed (cleaned data, feature engineering steps).
+│   ├── processed           <- Final datasets ready for modeling (train/test splits, feature sets).
+│   └── raw                 <- Original, immutable data dump (COIL 2000 dataset).
+│
+├── models                  <- Trained and serialized models, model predictions, or model summaries
+│
+├── notebooks               <- Jupyter notebooks for exploratory data analysis and experimentation.
+│
+├── references              <- Data dictionaries, research papers, manuals, and explanatory materials.
+│
+├── reports                 <- Generated outputs: evaluation results, metrics, plots, and reports.
+│   ├── figures             <- Visualizations generated for reporting.
+│   ├── metrics.json        <- Summary of model performance.
+│   ├── resultados_train.json
+│   └── resultados_test.json
+│
+├── requirements.txt        <- List of required packages to reproduce the analysis environment.
+│
+├── setup.py                <- Makes project pip installable (run `pip install -e .` to enable `import src`).
+│
+├── Dockerfile              <- Docker configuration to containerize the FastAPI service.
+│
+├── src                     <- Source code for this project.
+│   ├── __init__.py         <- Makes src a Python module.
+│   │
+│   ├── data                <- Scripts to load, clean, and transform data.
+│   │   └── eda_clean.py
+│   │   └── __init__.py
+│   │
+│   ├── features            <- Scripts for feature engineering and preprocessing.
+│   │   └── preprocessing.py
+│   │   └── __init__.py
+│   │
+│   ├── models              <- Scripts to train and evaluate models.
+│   │   ├── best_model.py   <- Final training script for the best-performing model.
+│   │   └── train_model.py
+│   │   └── __init__.py
+│   │
+│   ├── serving             <- API layer to serve predictions using FastAPI.
+│   │   └── CaravanInsuranceModelService.py <- FastAPI app that serves the trained COIL 2000 model for real-time insurance purchase predictions.
+│   │   └── pipeline.joblib     <- Final serialized model pipeline used for inference.
+│   │
+│
+└── tox.ini                 <- Settings for automated testing and linting.
+
 
 
 --------
@@ -271,7 +283,9 @@ Este modelo fue registrado como la versión 1 (`src/models/pipeline.joblib`) en 
 | Tag | Descripción | Fecha |
 |-----|--------------|--------|
 | `1.0` | Versión inicial del servicio FastAPI para el dataset COIL 2000. | 11/11/2025 |
-| `latest` | Alias de la versión estable más reciente. | 11/11/2025 |
+| `1.1` | Versión del servicio FastAPI sin overfitting. | 11/11/2025 |
+| `1.2` | Versión con Healthcheck. | 12/11/2025 |
+| `latest` | Alias de la versión estable más reciente. | 12/11/2025 |
 
 ---
 
@@ -289,7 +303,7 @@ Luego abre en el navegador:
 
 http://localhost:8000/docs
 
-### 👥 Otros usuarios y etiquetas
+# 👥 Otros usuarios y etiquetas
 
 Cualquier persona puede crear su propia copia y publicarla en su cuenta de Docker Hub:
 
