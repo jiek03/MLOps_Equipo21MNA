@@ -213,57 +213,54 @@ Pipeline de ML COIL 2000
 Project Organization
 ------------
 
+```text
 ├── LICENSE
-├── README.md               <- The top-level README for developers using this project.
+├── README.md                <- The top-level README for developers using this project.
 │
 ├── data
-│   ├── external            <- Data from third party sources.
-│   ├── interim             <- Intermediate data that has been transformed (cleaned data, feature engineering steps).
-│   ├── processed           <- Final datasets ready for modeling (train/test splits, feature sets).
-│   └── raw                 <- Original, immutable data dump (COIL 2000 dataset).
+│   ├── external             <- Data from third party sources.
+│   ├── interim              <- Intermediate data that has been transformed (cleaned data, feature engineering steps).
+│   ├── processed            <- Final datasets ready for modeling (train/test splits, feature sets).
+│   └── raw                  <- Original, immutable data dump (COIL 2000 dataset).
 │
-├── models                  <- Trained and serialized models, model predictions, or model summaries
+├── models                   <- Trained and serialized models, model predictions, or model summaries.
 │
-├── notebooks               <- Jupyter notebooks for exploratory data analysis and experimentation.
+├── notebooks                <- Jupyter notebooks for exploratory data analysis and experimentation.
 │
-├── references              <- Data dictionaries, research papers, manuals, and explanatory materials.
+├── references               <- Data dictionaries, research papers, manuals, and explanatory materials.
 │
-├── reports                 <- Generated outputs: evaluation results, metrics, plots, and reports.
-│   ├── figures             <- Visualizations generated for reporting.
-│   ├── metrics.json        <- Summary of model performance.
+├── reports                  <- Generated outputs: evaluation results, metrics, plots, and reports.
+│   ├── figures              <- Visualizations generated for reporting.
+│   ├── metrics.json         <- Summary of model performance.
 │   ├── resultados_train.json
 │   └── resultados_test.json
 │
-├── requirements.txt        <- List of required packages to reproduce the analysis environment.
+├── requirements.txt         <- List of required packages to reproduce the analysis environment.
+├── setup.py                 <- Makes project pip installable (run `pip install -e .` to enable `import src`).
+├── Dockerfile               <- Docker configuration to containerize the FastAPI service.
 │
-├── setup.py                <- Makes project pip installable (run `pip install -e .` to enable `import src`).
-│
-├── Dockerfile              <- Docker configuration to containerize the FastAPI service.
-│
-├── src                     <- Source code for this project.
-│   ├── __init__.py         <- Makes src a Python module.
+├── src                      <- Source code for this project.
+│   ├── __init__.py          <- Makes src a Python module.
 │   │
-│   ├── data                <- Scripts to load, clean, and transform data.
-│   │   └── eda_clean.py
+│   ├── data                 <- Scripts to load, clean, and transform data.
+│   │   ├── eda_clean.py
 │   │   └── __init__.py
 │   │
-│   ├── features            <- Scripts for feature engineering and preprocessing.
-│   │   └── preprocessing.py
+│   ├── features             <- Scripts for feature engineering and preprocessing.
+│   │   ├── preprocessing.py
 │   │   └── __init__.py
 │   │
-│   ├── models              <- Scripts to train and evaluate models.
-│   │   ├── best_model.py   <- Final training script for the best-performing model.
-│   │   └── train_model.py
+│   ├── models               <- Scripts to train and evaluate models.
+│   │   ├── best_model.py    <- Final training script for the best-performing model.
+│   │   ├── train_model.py
 │   │   └── __init__.py
 │   │
-│   ├── serving             <- API layer to serve predictions using FastAPI.
-│   │   └── CaravanInsuranceModelService.py <- FastAPI app that serves the trained COIL 2000 model for real-time insurance purchase predictions.
-│   │   └── pipeline.joblib     <- Final serialized model pipeline used for inference.
-│   │
+│   └── serving              <- API layer to serve predictions using FastAPI.
+│       ├── CaravanInsuranceModelService.py  <- FastAPI app that serves the trained COIL 2000 model for real-time insurance purchase predictions.
+│       └── pipeline.joblib  <- Final serialized model pipeline used for inference.
 │
-└── tox.ini                 <- Settings for automated testing and linting.
-
-
+└── tox.ini                  <- Settings for automated testing and linting.
+```
 
 --------
 
